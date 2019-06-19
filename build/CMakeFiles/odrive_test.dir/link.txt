@@ -1,0 +1,1 @@
+/usr/bin/c++     CMakeFiles/odrive_test.dir/src/main.cpp.o  -o odrive_test libodrive_cpp_sdk.a -lusb-1.0 

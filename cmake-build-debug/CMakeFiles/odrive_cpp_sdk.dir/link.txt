@@ -1,0 +1,2 @@
+/usr/bin/ar qc libodrive_cpp_sdk.a  CMakeFiles/odrive_cpp_sdk.dir/src/odrive_cpp_sdk.cpp.o
+/usr/bin/ranlib libodrive_cpp_sdk.a

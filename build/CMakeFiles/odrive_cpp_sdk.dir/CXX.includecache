@@ -1,0 +1,22 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/rexlab/doggo/odrive_test/src/odrive_cpp_sdk.cpp
+endian.h
+-
+odrive_cpp_sdk.h
+/home/rexlab/doggo/odrive_test/src/odrive_cpp_sdk.h
+cstring
+-
+algorithm
+-
+typeinfo
+-
+string
+-
+

@@ -1,0 +1,32 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../include/odrive_cpp_sdk.h
+iostream
+-
+string
+-
+vector
+-
+libusb-1.0/libusb.h
+-
+
+/home/rexlab/doggo/odrive_test/src/main.cpp
+iostream
+-
+odrive_cpp_sdk.h
+/home/rexlab/doggo/odrive_test/src/odrive_cpp_sdk.h
+math.h
+-
+unistd.h
+-
+ctime
+-
+chrono
+-
+
