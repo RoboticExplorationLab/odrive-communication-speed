@@ -5,6 +5,8 @@ add_compile_options(-std=c++11)
 
 set(CMAKE_CXX_STANDARD 14)
 
+SET(CMAKE_CXX_FLAGS -pthread)
+
 find_package(PkgConfig REQUIRED)
 pkg_search_module(LIBUSB1 REQUIRED libusb-1.0)
 

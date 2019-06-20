@@ -424,7 +424,7 @@ int CppSdk::odriveEndpointRequest(libusb_device_handle* handle, int endpoint_id,
         endpoint_id |= 0x8000;
     }
     outbound_seq_no_ = (outbound_seq_no_ + 1) & 0x7fff;
-    outbound_seq_no_ |= 0x0300; // FIXME, see odrive protocol.py
+    outbound_seq_no_ |= 0x80;
     short seq_no = outbound_seq_no_;
 
     // Send the packet
