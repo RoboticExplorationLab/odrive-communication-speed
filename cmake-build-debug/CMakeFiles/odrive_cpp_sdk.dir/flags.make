@@ -6,5 +6,5 @@ CXX_FLAGS = -g   -std=c++11 -std=gnu++14
 
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/rexlab/doggo/odrive_test/. -I/home/rexlab/doggo/odrive_test/include -I/home/rexlab/doggo/odrive_test/lib -isystem /usr/include/libusb-1.0 
+CXX_INCLUDES = -I/home/rexlab/Doggo/odrive-communication-speed/. -I/home/rexlab/Doggo/odrive-communication-speed/include -I/home/rexlab/Doggo/odrive-communication-speed/lib -isystem /usr/include/libusb-1.0 
 

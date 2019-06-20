@@ -4,14 +4,25 @@
 #include <unistd.h>
 #include <ctime>
 #include <chrono>
+#include <thread>
+
+//void communicateODrive0_thread(){
+//
+//}
+//
+//void communicateODrive1_thread(){
+//
+//}
 
 int main(int argc, const char * argv[]) {
 
-	std::string bl_sn = "35765125264712"; //"60903547810103";
+	std::string bl_sn = "60903547810103";//"35765125264712";
 	std::string fl_sn = "35735059313992";
 
-    std::string odrive_serial_numbers[2] = {bl_sn,fl_sn};
-	std::string odrive_serial_numbers_map[4] = {bl_sn, bl_sn, fl_sn, fl_sn};
+//    std::string odrive_serial_numbers[2] = {bl_sn,fl_sn};
+//	std::string odrive_serial_numbers_map[4] = {bl_sn, bl_sn, fl_sn, fl_sn};
+    std::string odrive_serial_numbers[2] = {fl_sn,bl_sn};
+    std::string odrive_serial_numbers_map[4] = {fl_sn, fl_sn, bl_sn, bl_sn};
 	int16_t zeroeth_radian_in_encoder_ticks_[2] = { -200, 0 };
 	bool odrive_position_per_motor[4] = {false, true, false, true};
 	bool motor_relative_to_prior_motor[2] = {false, false};
@@ -40,7 +51,7 @@ int main(int argc, const char * argv[]) {
 	}
 
 //	std::cout << "Running calibration" << std::endl;
-//	//result = odrives.runCalibration();
+//	result = odrives.runCalibration();
 //	std::cout << "Setting to closed loop" << std::endl;
 	result = odrives.allReady();
 //	std::cout << "Setting to current control" << std::endl;
@@ -58,21 +69,33 @@ int main(int argc, const char * argv[]) {
 //	result = odrives.setCurrentSetpoint(odrive_current_des);
 //	std::cout << "Setting current with result: " << result << std::endl;
 
-    int NUM_LOOPS = 1000;
-	float sum = 0;
+    int NUM_LOOPS = 10000;
+
+    float sum = 0;
+    for (int i = 0; i < NUM_LOOPS; i++){
+        std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
+        odrives.useTestFunction(10);
+        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+        sum += std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+    }
+    float avg = sum / NUM_LOOPS;
+    std::cout << avg << std::endl;
+
+
+    sum = 0;
 	for (int i = 0; i < NUM_LOOPS; i++){
-        float odrives_encoders[num_motors] = {0};
+        float odrives_encoders[num_motors] = {0.0f, 0.0f};
         std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
         odrives.readEncoders(odrives_encoders);
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
         sum += std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
 	}
-	float avg = sum / NUM_LOOPS;
+	avg = sum / NUM_LOOPS;
 	std::cout << avg << std::endl;
 
     sum = 0;
 	for (int i = 0; i < NUM_LOOPS; i++){
-        float odrive_current_des[4] = {0.0, 0.0};
+        float odrive_current_des[4] = {0.0, 0.0, 0.0, 0.0};
         std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
         odrives.setCurrentSetpoint(odrive_current_des);
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();

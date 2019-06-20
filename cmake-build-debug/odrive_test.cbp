@@ -8,45 +8,45 @@
 		<Option virtualFolders="CMake Files\;"/>
 		<Build>
 			<Target title="all">
-				<Option working_dir="/home/rexlab/doggo/odrive_test/cmake-build-debug"/>
+				<Option working_dir="/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j8 -f &quot;/home/rexlab/doggo/odrive_test/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
-					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/rexlab/doggo/odrive_test/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j8 -f &quot;/home/rexlab/doggo/odrive_test/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j8 -f &quot;/home/rexlab/doggo/odrive_test/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="install/strip">
-				<Option working_dir="/home/rexlab/doggo/odrive_test/cmake-build-debug"/>
+				<Option working_dir="/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j8 -f &quot;/home/rexlab/doggo/odrive_test/cmake-build-debug/Makefile&quot;  VERBOSE=1 install/strip"/>
-					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/rexlab/doggo/odrive_test/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j8 -f &quot;/home/rexlab/doggo/odrive_test/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j8 -f &quot;/home/rexlab/doggo/odrive_test/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/Makefile&quot;  VERBOSE=1 install/strip"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="install/local">
-				<Option working_dir="/home/rexlab/doggo/odrive_test/cmake-build-debug"/>
+				<Option working_dir="/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j8 -f &quot;/home/rexlab/doggo/odrive_test/cmake-build-debug/Makefile&quot;  VERBOSE=1 install/local"/>
-					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/rexlab/doggo/odrive_test/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j8 -f &quot;/home/rexlab/doggo/odrive_test/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j8 -f &quot;/home/rexlab/doggo/odrive_test/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/Makefile&quot;  VERBOSE=1 install/local"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="odrive_cpp_sdk">
-				<Option output="/home/rexlab/doggo/odrive_test/cmake-build-debug/libodrive_cpp_sdk.a" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/rexlab/doggo/odrive_test/cmake-build-debug"/>
+				<Option output="/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/libodrive_cpp_sdk.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug"/>
 				<Option object_output="./"/>
 				<Option type="2"/>
 				<Option compiler="gcc"/>
 				<Compiler>
-					<Add directory="/home/rexlab/doggo/odrive_test/."/>
-					<Add directory="/home/rexlab/doggo/odrive_test/include"/>
-					<Add directory="/home/rexlab/doggo/odrive_test/lib"/>
+					<Add directory="/home/rexlab/Doggo/odrive-communication-speed/."/>
+					<Add directory="/home/rexlab/Doggo/odrive-communication-speed/include"/>
+					<Add directory="/home/rexlab/Doggo/odrive-communication-speed/lib"/>
 					<Add directory="/usr/include/libusb-1.0"/>
 					<Add directory="/usr/include/c++/7"/>
 					<Add directory="/usr/include/x86_64-linux-gnu/c++/7"/>
@@ -58,22 +58,22 @@
 					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j8 -f &quot;/home/rexlab/doggo/odrive_test/cmake-build-debug/Makefile&quot;  VERBOSE=1 odrive_cpp_sdk"/>
-					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/rexlab/doggo/odrive_test/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j8 -f &quot;/home/rexlab/doggo/odrive_test/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j8 -f &quot;/home/rexlab/doggo/odrive_test/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/Makefile&quot;  VERBOSE=1 odrive_cpp_sdk"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="odrive_cpp_sdk/fast">
-				<Option output="/home/rexlab/doggo/odrive_test/cmake-build-debug/libodrive_cpp_sdk.a" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/rexlab/doggo/odrive_test/cmake-build-debug"/>
+				<Option output="/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/libodrive_cpp_sdk.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug"/>
 				<Option object_output="./"/>
 				<Option type="2"/>
 				<Option compiler="gcc"/>
 				<Compiler>
-					<Add directory="/home/rexlab/doggo/odrive_test/."/>
-					<Add directory="/home/rexlab/doggo/odrive_test/include"/>
-					<Add directory="/home/rexlab/doggo/odrive_test/lib"/>
+					<Add directory="/home/rexlab/Doggo/odrive-communication-speed/."/>
+					<Add directory="/home/rexlab/Doggo/odrive-communication-speed/include"/>
+					<Add directory="/home/rexlab/Doggo/odrive-communication-speed/lib"/>
 					<Add directory="/usr/include/libusb-1.0"/>
 					<Add directory="/usr/include/c++/7"/>
 					<Add directory="/usr/include/x86_64-linux-gnu/c++/7"/>
@@ -85,32 +85,32 @@
 					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j8 -f &quot;/home/rexlab/doggo/odrive_test/cmake-build-debug/Makefile&quot;  VERBOSE=1 odrive_cpp_sdk/fast"/>
-					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/rexlab/doggo/odrive_test/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j8 -f &quot;/home/rexlab/doggo/odrive_test/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j8 -f &quot;/home/rexlab/doggo/odrive_test/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/Makefile&quot;  VERBOSE=1 odrive_cpp_sdk/fast"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="install">
-				<Option working_dir="/home/rexlab/doggo/odrive_test/cmake-build-debug"/>
+				<Option working_dir="/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j8 -f &quot;/home/rexlab/doggo/odrive_test/cmake-build-debug/Makefile&quot;  VERBOSE=1 install"/>
-					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/rexlab/doggo/odrive_test/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j8 -f &quot;/home/rexlab/doggo/odrive_test/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j8 -f &quot;/home/rexlab/doggo/odrive_test/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/Makefile&quot;  VERBOSE=1 install"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="odrive_test">
-				<Option output="/home/rexlab/doggo/odrive_test/cmake-build-debug/odrive_test" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/rexlab/doggo/odrive_test/cmake-build-debug"/>
+				<Option output="/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/odrive_test" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
-					<Add directory="/home/rexlab/doggo/odrive_test/."/>
-					<Add directory="/home/rexlab/doggo/odrive_test/include"/>
-					<Add directory="/home/rexlab/doggo/odrive_test/lib"/>
+					<Add directory="/home/rexlab/Doggo/odrive-communication-speed/."/>
+					<Add directory="/home/rexlab/Doggo/odrive-communication-speed/include"/>
+					<Add directory="/home/rexlab/Doggo/odrive-communication-speed/lib"/>
 					<Add directory="/usr/include/libusb-1.0"/>
 					<Add directory="/usr/include/c++/7"/>
 					<Add directory="/usr/include/x86_64-linux-gnu/c++/7"/>
@@ -122,22 +122,22 @@
 					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j8 -f &quot;/home/rexlab/doggo/odrive_test/cmake-build-debug/Makefile&quot;  VERBOSE=1 odrive_test"/>
-					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/rexlab/doggo/odrive_test/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j8 -f &quot;/home/rexlab/doggo/odrive_test/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j8 -f &quot;/home/rexlab/doggo/odrive_test/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/Makefile&quot;  VERBOSE=1 odrive_test"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="odrive_test/fast">
-				<Option output="/home/rexlab/doggo/odrive_test/cmake-build-debug/odrive_test" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/rexlab/doggo/odrive_test/cmake-build-debug"/>
+				<Option output="/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/odrive_test" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
-					<Add directory="/home/rexlab/doggo/odrive_test/."/>
-					<Add directory="/home/rexlab/doggo/odrive_test/include"/>
-					<Add directory="/home/rexlab/doggo/odrive_test/lib"/>
+					<Add directory="/home/rexlab/Doggo/odrive-communication-speed/."/>
+					<Add directory="/home/rexlab/Doggo/odrive-communication-speed/include"/>
+					<Add directory="/home/rexlab/Doggo/odrive-communication-speed/lib"/>
 					<Add directory="/usr/include/libusb-1.0"/>
 					<Add directory="/usr/include/c++/7"/>
 					<Add directory="/usr/include/x86_64-linux-gnu/c++/7"/>
@@ -149,50 +149,50 @@
 					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j8 -f &quot;/home/rexlab/doggo/odrive_test/cmake-build-debug/Makefile&quot;  VERBOSE=1 odrive_test/fast"/>
-					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/rexlab/doggo/odrive_test/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j8 -f &quot;/home/rexlab/doggo/odrive_test/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j8 -f &quot;/home/rexlab/doggo/odrive_test/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/Makefile&quot;  VERBOSE=1 odrive_test/fast"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="edit_cache">
-				<Option working_dir="/home/rexlab/doggo/odrive_test/cmake-build-debug"/>
+				<Option working_dir="/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j8 -f &quot;/home/rexlab/doggo/odrive_test/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
-					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/rexlab/doggo/odrive_test/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j8 -f &quot;/home/rexlab/doggo/odrive_test/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j8 -f &quot;/home/rexlab/doggo/odrive_test/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="rebuild_cache">
-				<Option working_dir="/home/rexlab/doggo/odrive_test/cmake-build-debug"/>
+				<Option working_dir="/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j8 -f &quot;/home/rexlab/doggo/odrive_test/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
-					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/rexlab/doggo/odrive_test/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j8 -f &quot;/home/rexlab/doggo/odrive_test/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j8 -f &quot;/home/rexlab/doggo/odrive_test/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="list_install_components">
-				<Option working_dir="/home/rexlab/doggo/odrive_test/cmake-build-debug"/>
+				<Option working_dir="/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j8 -f &quot;/home/rexlab/doggo/odrive_test/cmake-build-debug/Makefile&quot;  VERBOSE=1 list_install_components"/>
-					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/rexlab/doggo/odrive_test/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j8 -f &quot;/home/rexlab/doggo/odrive_test/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j8 -f &quot;/home/rexlab/doggo/odrive_test/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/Makefile&quot;  VERBOSE=1 list_install_components"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="/home/rexlab/doggo/odrive_test/src/main.cpp">
+		<Unit filename="/home/rexlab/Doggo/odrive-communication-speed/src/main.cpp">
 			<Option target="odrive_test"/>
 		</Unit>
-		<Unit filename="/home/rexlab/doggo/odrive_test/src/odrive_cpp_sdk.cpp">
+		<Unit filename="/home/rexlab/Doggo/odrive-communication-speed/src/odrive_cpp_sdk.cpp">
 			<Option target="odrive_cpp_sdk"/>
 		</Unit>
-		<Unit filename="/home/rexlab/doggo/odrive_test/CMakeLists.txt">
+		<Unit filename="/home/rexlab/Doggo/odrive-communication-speed/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
 		</Unit>
 	</Project>

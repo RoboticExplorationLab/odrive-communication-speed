@@ -293,6 +293,38 @@ int CppSdk::readEncoders(float* axes_positions_in_cpr_array) {
     return ODRIVE_SDK_COMM_SUCCESS;
 }
 
+int CppSdk::useTestFunction(int in){
+    uint8_t handle_index = motor_to_odrive_handle_index_[0];
+    int cmd = ODRIVE_SDK_TEST_ARG;
+
+    odriveEndpointSetInt(odrive_handles_[handle_index], cmd, in);
+
+    cmd = ODRIVE_SDK_TEST_FUNC;
+    odriveEndpointSetInt(odrive_handles_[handle_index], cmd, in);
+
+    cmd = ODRIVE_SDK_TEST_OUT;
+
+    int res;
+    odriveEndpointGetInt(odrive_handles_[handle_index], cmd, res);
+
+    return res;
+}
+
+float CppSdk::getEncodersFunction(float current0) {
+    uint8_t handle_index = motor_to_odrive_handle_index_[0];
+    int cmd = ODRIVE_SDK_GET_ENCODERS_ARG;
+    odriveEndpointSetFloat(odrive_handles_[handle_index], cmd, current0);
+
+    cmd = ODRIVE_SDK_GET_ENCODERS_FUNC;
+    odriveEndpointSetFloat(odrive_handles_[handle_index], cmd, 0);
+
+    cmd = ODRIVE_SDK_GET_ENCODERS_OUT;
+    float read_encoder_ticks;
+    odriveEndpointGetFloat(odrive_handles_[handle_index], cmd, read_encoder_ticks);
+
+    return read_encoder_ticks;
+}
+
 int CppSdk::checkErrors(uint8_t* error_codes_array) {
     if (! motor_to_odrive_handle_index_) {
         return ODRIVE_SDK_NOT_INITIALIZED;
@@ -345,7 +377,7 @@ int CppSdk::initUSBHandlesBySNs() {
             }
             else {
                 bool attached_to_handle = false;
-                uint64_t read_serial_number;
+                uint64_t read_serial_number = 0;
                 int result = odriveEndpointGetUInt64(device_handle, ODRIVE_SDK_SERIAL_NUMBER_CMD, read_serial_number);
                 if (result != LIBUSB_SUCCESS) {
                     std::cerr << "Couldn't send `" << std::to_string(ODRIVE_SDK_SERIAL_NUMBER_CMD) << "` to '0d" << std::to_string(desc.idVendor) << ":" << std::to_string(desc.idProduct) << "': `" << result << " - " << libusb_error_name(result) << "`" << std::endl;
@@ -529,6 +561,17 @@ int CppSdk::odriveEndpointSetFloat(libusb_device_handle* handle, int endpoint_id
     return ODRIVE_SDK_COMM_SUCCESS;
 }
 
+int CppSdk::odriveEndpointSetInt(libusb_device_handle* handle, int endpoint_id, const int& value) {
+    commBuffer send_payload;
+    commBuffer receive_payload;
+    int received_length;
+    serializeCommBufferInt(send_payload, value);
+    int result = odriveEndpointRequest(handle, endpoint_id, receive_payload, received_length, send_payload, 0, 0); // ack was 1 before?
+    if (result != ODRIVE_SDK_COMM_SUCCESS) {
+        return result;
+    }
+    return ODRIVE_SDK_COMM_SUCCESS;
+}
 
 void CppSdk::appendShortToCommBuffer(commBuffer& buf, const short value) {
     buf.push_back((value >> 0) & 0xFF);

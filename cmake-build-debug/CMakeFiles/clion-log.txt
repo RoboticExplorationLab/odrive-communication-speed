@@ -1,4 +1,4 @@
-/home/rexlab/Downloads/clion/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /home/rexlab/doggo/odrive_test
+/home/rexlab/Downloads/clion/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /home/rexlab/Doggo/odrive-communication-speed
 -- The C compiler identification is GNU 7.4.0
 -- The CXX compiler identification is GNU 7.4.0
 -- Check for working C compiler: /usr/bin/cc
@@ -17,4 +17,4 @@
 -- Checking for one of the modules 'libusb-1.0'
 -- Configuring done
 -- Generating done
--- Build files have been written to: /home/rexlab/doggo/odrive_test/cmake-build-debug
+-- Build files have been written to: /home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug

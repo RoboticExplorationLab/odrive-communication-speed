@@ -4,7 +4,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/rexlab/doggo/odrive_test/src/odrive_cpp_sdk.cpp" "/home/rexlab/doggo/odrive_test/cmake-build-debug/CMakeFiles/odrive_cpp_sdk.dir/src/odrive_cpp_sdk.cpp.o"
+  "/home/rexlab/Doggo/odrive-communication-speed/src/odrive_cpp_sdk.cpp" "/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/CMakeFiles/odrive_cpp_sdk.dir/src/odrive_cpp_sdk.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 

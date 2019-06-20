@@ -43,10 +43,10 @@ RM = /home/rexlab/Downloads/clion/bin/cmake/linux/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/rexlab/doggo/odrive_test
+CMAKE_SOURCE_DIR = /home/rexlab/Doggo/odrive-communication-speed
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/rexlab/doggo/odrive_test/cmake-build-debug
+CMAKE_BINARY_DIR = /home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug
 
 # Include any dependencies generated for this target.
 include CMakeFiles/odrive_cpp_sdk.dir/depend.make
@@ -59,16 +59,16 @@ include CMakeFiles/odrive_cpp_sdk.dir/flags.make
 
 CMakeFiles/odrive_cpp_sdk.dir/src/odrive_cpp_sdk.cpp.o: CMakeFiles/odrive_cpp_sdk.dir/flags.make
 CMakeFiles/odrive_cpp_sdk.dir/src/odrive_cpp_sdk.cpp.o: ../src/odrive_cpp_sdk.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/rexlab/doggo/odrive_test/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/odrive_cpp_sdk.dir/src/odrive_cpp_sdk.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/odrive_cpp_sdk.dir/src/odrive_cpp_sdk.cpp.o -c /home/rexlab/doggo/odrive_test/src/odrive_cpp_sdk.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/odrive_cpp_sdk.dir/src/odrive_cpp_sdk.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/odrive_cpp_sdk.dir/src/odrive_cpp_sdk.cpp.o -c /home/rexlab/Doggo/odrive-communication-speed/src/odrive_cpp_sdk.cpp
 
 CMakeFiles/odrive_cpp_sdk.dir/src/odrive_cpp_sdk.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/odrive_cpp_sdk.dir/src/odrive_cpp_sdk.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/rexlab/doggo/odrive_test/src/odrive_cpp_sdk.cpp > CMakeFiles/odrive_cpp_sdk.dir/src/odrive_cpp_sdk.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/rexlab/Doggo/odrive-communication-speed/src/odrive_cpp_sdk.cpp > CMakeFiles/odrive_cpp_sdk.dir/src/odrive_cpp_sdk.cpp.i
 
 CMakeFiles/odrive_cpp_sdk.dir/src/odrive_cpp_sdk.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/odrive_cpp_sdk.dir/src/odrive_cpp_sdk.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/rexlab/doggo/odrive_test/src/odrive_cpp_sdk.cpp -o CMakeFiles/odrive_cpp_sdk.dir/src/odrive_cpp_sdk.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/rexlab/Doggo/odrive-communication-speed/src/odrive_cpp_sdk.cpp -o CMakeFiles/odrive_cpp_sdk.dir/src/odrive_cpp_sdk.cpp.s
 
 # Object files for target odrive_cpp_sdk
 odrive_cpp_sdk_OBJECTS = \
@@ -80,7 +80,7 @@ odrive_cpp_sdk_EXTERNAL_OBJECTS =
 libodrive_cpp_sdk.a: CMakeFiles/odrive_cpp_sdk.dir/src/odrive_cpp_sdk.cpp.o
 libodrive_cpp_sdk.a: CMakeFiles/odrive_cpp_sdk.dir/build.make
 libodrive_cpp_sdk.a: CMakeFiles/odrive_cpp_sdk.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/rexlab/doggo/odrive_test/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX static library libodrive_cpp_sdk.a"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX static library libodrive_cpp_sdk.a"
 	$(CMAKE_COMMAND) -P CMakeFiles/odrive_cpp_sdk.dir/cmake_clean_target.cmake
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/odrive_cpp_sdk.dir/link.txt --verbose=$(VERBOSE)
 
@@ -94,6 +94,6 @@ CMakeFiles/odrive_cpp_sdk.dir/clean:
 .PHONY : CMakeFiles/odrive_cpp_sdk.dir/clean
 
 CMakeFiles/odrive_cpp_sdk.dir/depend:
-	cd /home/rexlab/doggo/odrive_test/cmake-build-debug && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/rexlab/doggo/odrive_test /home/rexlab/doggo/odrive_test /home/rexlab/doggo/odrive_test/cmake-build-debug /home/rexlab/doggo/odrive_test/cmake-build-debug /home/rexlab/doggo/odrive_test/cmake-build-debug/CMakeFiles/odrive_cpp_sdk.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/rexlab/Doggo/odrive-communication-speed /home/rexlab/Doggo/odrive-communication-speed /home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug /home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug /home/rexlab/Doggo/odrive-communication-speed/cmake-build-debug/CMakeFiles/odrive_cpp_sdk.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/odrive_cpp_sdk.dir/depend
 

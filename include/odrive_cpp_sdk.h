@@ -51,6 +51,14 @@ typedef std::vector<uint8_t> commBuffer;
 #define ODRIVE_SDK_CONTROL_MODE_0_CMD 131
 #define ODRIVE_SDK_CONTROL_MODE_1_CMD 274
 
+#define ODRIVE_SDK_GET_ENCODERS_FUNC 349
+#define ODRIVE_SDK_GET_ENCODERS_ARG 350
+#define ODRIVE_SDK_GET_ENCODERS_OUT 351
+
+#define ODRIVE_SDK_TEST_FUNC 346
+#define ODRIVE_SDK_TEST_ARG 347
+#define ODRIVE_SDK_TEST_OUT 348
+
 #define AXIS_STATE_UNDEFINED 0
 #define AXIS_STATE_IDLE 1
 #define AXIS_STATE_STARTUP_SEQUENCE 2
@@ -93,7 +101,9 @@ namespace odrive
         int setCurrentSetpoint(const float* axes_current_in_A_array);
         int readMotorPositions(double* axes_positions_in_radians_array); // assumed to match num_motors
         int readEncoders(float* axes_positions_in_cpr_array);
+        int useTestFunction(int in);
         int checkErrors(uint8_t* error_codes_array); // assumed to match num_motors
+        float getEncodersFunction(float current0);
 
     private:
 
@@ -125,6 +135,7 @@ namespace odrive
         int odriveEndpointGetUInt64(libusb_device_handle* handle, int endpoint_id, uint64_t& value);
         int odriveEndpointSetUInt8(libusb_device_handle* handle, int endpoint_id, const uint8_t& value);
         int odriveEndpointSetFloat(libusb_device_handle* handle, int endpoint_id, const float& value);
+        int odriveEndpointSetInt(libusb_device_handle* handle, int endpoint_id, const int& value);
         void serializeCommBufferInt(commBuffer& buf, const int& value);
         void serializeCommBufferFloat(commBuffer& buf, const float& value);
         void deserializeCommBufferInt(commBuffer& buf, int& value);
