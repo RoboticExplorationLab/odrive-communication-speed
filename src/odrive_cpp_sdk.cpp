@@ -376,6 +376,8 @@ int CppSdk::initUSBHandlesBySNs() {
               libusb_close(device_handle);
             }
             else {
+                std::cout << "Opened an ODrive" << std::endl;
+
                 bool attached_to_handle = false;
                 uint64_t read_serial_number = 0;
                 int result = odriveEndpointGetUInt64(device_handle, ODRIVE_SDK_SERIAL_NUMBER_CMD, read_serial_number);
@@ -383,6 +385,8 @@ int CppSdk::initUSBHandlesBySNs() {
                     std::cerr << "Couldn't send `" << std::to_string(ODRIVE_SDK_SERIAL_NUMBER_CMD) << "` to '0d" << std::to_string(desc.idVendor) << ":" << std::to_string(desc.idProduct) << "': `" << result << " - " << libusb_error_name(result) << "`" << std::endl;
                 } else {
                     // find the right index for it in odrive_handles_
+
+                    std::cout << "Result: "<< result << "Serial Number: " << std::to_string(read_serial_number) << std::endl;
                     for (uint8_t i = 0; i < num_odrives_; ++i) {
                         if (0 == odrive_serial_numbers_[i].compare(std::to_string(read_serial_number))) { // found!  no need to close, but need to free device list
                             odrive_handles_[i] = device_handle;
