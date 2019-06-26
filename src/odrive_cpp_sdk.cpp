@@ -139,6 +139,21 @@ int CppSdk::runCalibration(){
     return ODRIVE_SDK_COMM_SUCCESS;
 }
 
+int CppSdk::getRequestedState(int cmd, uint8_t& state){
+    if (! motor_to_odrive_handle_index_) {
+        return ODRIVE_SDK_NOT_INITIALIZED;
+    }
+
+    uint8_t handle_index = motor_to_odrive_handle_index_[0];
+
+    int result = odriveEndpointGetUInt8(odrive_handles_[handle_index], cmd, state);
+    if (result != LIBUSB_SUCCESS) {
+        std::cerr << "Couldn't run full calibration " << std::to_string(cmd) << "': `" << result << "` (see prior error message)" << std::endl;
+        return ODRIVE_SDK_UNEXPECTED_RESPONSE;
+    }
+    return ODRIVE_SDK_COMM_SUCCESS;
+}
+
 int CppSdk::allReady(){
     if (! motor_to_odrive_handle_index_) {
         return ODRIVE_SDK_NOT_INITIALIZED;
@@ -325,6 +340,20 @@ float CppSdk::getEncodersFunction(float current0) {
     return read_encoder_ticks;
 }
 
+int CppSdk::getEncodersStructFunction(const current_command_t& current_cmd, encoder_measurements_t& encoder_meas) {
+    int result;
+    uint8_t handle_index = motor_to_odrive_handle_index_[0];
+    int cmd = ODRIVE_SDK_GET_ENCODERS_ARG;
+    result = odriveEndpointSetCurrentCmd(odrive_handles_[handle_index], current_cmd);
+
+    cmd = ODRIVE_SDK_GET_ENCODERS_STRUCT_FUNC;
+    result = odriveEndpointSetFloat(odrive_handles_[handle_index], cmd, 0);
+
+    result = odriveEndpointGetEncoderMeas(odrive_handles_[handle_index], encoder_meas);
+
+    return result;
+}
+
 int CppSdk::checkErrors(uint8_t* error_codes_array) {
     if (! motor_to_odrive_handle_index_) {
         return ODRIVE_SDK_NOT_INITIALIZED;
@@ -376,8 +405,6 @@ int CppSdk::initUSBHandlesBySNs() {
               libusb_close(device_handle);
             }
             else {
-                std::cout << "Opened an ODrive" << std::endl;
-
                 bool attached_to_handle = false;
                 uint64_t read_serial_number = 0;
                 int result = odriveEndpointGetUInt64(device_handle, ODRIVE_SDK_SERIAL_NUMBER_CMD, read_serial_number);
@@ -405,7 +432,6 @@ int CppSdk::initUSBHandlesBySNs() {
                     libusb_close(device_handle);
                 } else{
 					std::cout << "Matched ODrive: " << std::to_string(read_serial_number) << std::endl;
-                    std::cout << libusb_get_device_speed(device) << std::endl;
 				}
             }
         }
@@ -541,12 +567,24 @@ int CppSdk::odriveEndpointGetUInt64(libusb_device_handle* handle, int id, uint64
     return LIBUSB_SUCCESS;
 }
 
+int CppSdk::odriveEndpointGetUInt8(libusb_device_handle* handle, int id, uint8_t& value) {
+    commBuffer send_payload;
+    commBuffer receive_payload;
+    int received_length;
+    int result = odriveEndpointRequest(handle, id, receive_payload, received_length, send_payload, 1, 8);
+    if (result != LIBUSB_SUCCESS) {
+        return result;
+    }
+    deserializeCommBufferUInt8(receive_payload, value);
+    return LIBUSB_SUCCESS;
+}
+
 int CppSdk::odriveEndpointSetUInt8(libusb_device_handle* handle, int endpoint_id, const uint8_t& value) {
     commBuffer send_payload;
     commBuffer receive_payload;
     int received_length;
-    serializeCommBufferInt(send_payload, value);
-    int result = odriveEndpointRequest(handle, endpoint_id, receive_payload, received_length, send_payload, 1, 0);
+    serializeCommBufferUInt8(send_payload, value);
+    int result = odriveEndpointRequest(handle, endpoint_id, receive_payload, received_length, send_payload, 0, 0);
     if (result != ODRIVE_SDK_COMM_SUCCESS) {
         return result;
     }
@@ -575,6 +613,62 @@ int CppSdk::odriveEndpointSetInt(libusb_device_handle* handle, int endpoint_id, 
         return result;
     }
     return ODRIVE_SDK_COMM_SUCCESS;
+}
+
+int CppSdk::odriveEndpointSetCurrentCmd(libusb_device_handle* handle, const current_command_t& value){
+    commBuffer send_payload;
+    commBuffer send_payload_2;
+    commBuffer receive_payload;
+    int received_length;
+    serializeCommBufferFloat(send_payload, value.current_axis0);
+    serializeCommBufferFloat(send_payload_2, value.current_axis1);
+
+    send_payload.insert(send_payload.end(), send_payload_2.begin(), send_payload_2.end());
+
+    int result = odriveEndpointRequest(handle, ODRIVE_SDK_GET_ENCODERS_STRUCT_ARG, receive_payload, received_length, send_payload, 0, 0);
+    if (result != ODRIVE_SDK_COMM_SUCCESS) {
+        return result;
+    }
+    return ODRIVE_SDK_COMM_SUCCESS;
+}
+
+int CppSdk::odriveEndpointGetEncoderMeas(libusb_device_handle* handle, encoder_measurements_t& value){
+    commBuffer send_payload;
+    commBuffer receive_payload;
+    int received_length;
+    int result = odriveEndpointRequest(handle, ODRIVE_SDK_GET_ENCODERS_STRUCT_OUT, receive_payload,
+            received_length, send_payload, 1, 4*sizeof(float));
+    if (result != ODRIVE_SDK_COMM_SUCCESS) {
+        return result;
+    }
+
+    if (received_length >= sizeof(float)*4) {
+        float pos_axis0, vel_axis0, pos_axis1, vel_axis1;
+        commBuffer receive_payload_1(receive_payload.begin(), receive_payload.begin() + sizeof(float));
+        deserializeCommBufferFloat(receive_payload_1, pos_axis0);
+
+        commBuffer receive_payload_2(receive_payload.begin() + sizeof(float),
+                                     receive_payload.begin() + 2 * sizeof(float));
+        deserializeCommBufferFloat(receive_payload_2, vel_axis0);
+
+        commBuffer receive_payload_3(receive_payload.begin() + 2 * sizeof(float),
+                                     receive_payload.begin() + 3 * sizeof(float));
+        deserializeCommBufferFloat(receive_payload_3, pos_axis1);
+
+        commBuffer receive_payload_4(receive_payload.begin() + 3 * sizeof(float),
+                                     receive_payload.begin() + 4 * sizeof(float));
+        deserializeCommBufferFloat(receive_payload_4, vel_axis1);
+
+        value.encoder_pos_axis0 = pos_axis0;
+        value.encoder_vel_axis0 = vel_axis0;
+        value.encoder_pos_axis1 = pos_axis1;
+        value.encoder_vel_axis1 = vel_axis1;
+        return ODRIVE_SDK_COMM_SUCCESS;
+    }
+    else{
+        std::cout << "Received length is too short to decode a struct" << std::endl;
+        return -1;
+    }
 }
 
 void CppSdk::appendShortToCommBuffer(commBuffer& buf, const short value) {
@@ -607,6 +701,10 @@ void CppSdk::serializeCommBufferInt(commBuffer& buf, const int& value) {
     buf.push_back((value >> 8) & 0xFF);
     buf.push_back((value >> 16) & 0xFF);
     buf.push_back((value >> 24) & 0xFF);
+}
+
+void CppSdk::serializeCommBufferUInt8(commBuffer& buf, const uint8_t& value) {
+    buf.push_back(value);
 }
 
 void CppSdk::deserializeCommBufferInt(commBuffer& byte_array, int& value) {
@@ -650,6 +748,18 @@ void CppSdk::deserializeCommBufferUInt16(commBuffer& v, uint16_t& value) {
 
   //Convert the byte array to little endian. It's currently being read in as a bigendian.
   value = boost::endian::endian_reverse(value);
+}
+
+void CppSdk::deserializeCommBufferUInt8(commBuffer& v, uint8_t& value) {
+    value = 0;
+//    for(int i = 0; i < v.size(); ++i) {
+//        value <<= 8;
+//        value |= v[i];
+//    }
+    value |= v[0];
+
+    //Convert the byte array to little endian. It's currently being read in as a bigendian.
+    value = boost::endian::endian_reverse(value);
 }
 
 commBuffer CppSdk::createODrivePacket(short seq_no, int endpoint_id, short response_size, const commBuffer& input) {

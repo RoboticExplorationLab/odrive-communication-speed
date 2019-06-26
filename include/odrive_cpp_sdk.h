@@ -8,14 +8,13 @@
 #include <libusb-1.0/libusb.h>
 //#include "endian.h"
 
-typedef std::vector<uint8_t> commBuffer;
-
 #define ODRIVE_SDK_USB_VENDORID     4617 //decimal for 0x1209
 #define ODRIVE_SDK_USB_PRODUCTID_0     3379 // mac
 #define ODRIVE_SDK_USB_PRODUCTID_1     3378 // linux?
 
 #define ODRIVE_SDK_PROTOCOL_VERION 1
-#define ODRIVE_SDK_DEFAULT_CRC_VALUE 13145  // found with running expore_odrive -v and outputting my own information
+//#define ODRIVE_SDK_DEFAULT_CRC_VALUE 13145  // found with running expore_odrive -v and outputting my own information
+#define ODRIVE_SDK_DEFAULT_CRC_VALUE 49760 //39224 // CRC calculated over JSON -> every time protocols changed, CRC changes
 #define ODRIVE_SDK_MAX_BYTES_TO_RECEIVE 64
 #define ODRIVE_SDK_TIMEOUT 1000
 #define ODRIVE_SDK_MAX_RESULT_LENGTH 100
@@ -48,12 +47,19 @@ typedef std::vector<uint8_t> commBuffer;
 #define ODRIVE_SDK_REQUESTED_STATE_0_CMD 55
 #define ODRIVE_SDK_REQUESTED_STATE_1_CMD 198
 
+#define ODRIVE_SDK_CURRENT_STATE_0_CMD 54
+#define ODRIVE_SDK_CURRENT_STATE_1_CMD 197
+
 #define ODRIVE_SDK_CONTROL_MODE_0_CMD 131
 #define ODRIVE_SDK_CONTROL_MODE_1_CMD 274
 
 #define ODRIVE_SDK_GET_ENCODERS_FUNC 349
 #define ODRIVE_SDK_GET_ENCODERS_ARG 350
 #define ODRIVE_SDK_GET_ENCODERS_OUT 351
+
+#define ODRIVE_SDK_GET_ENCODERS_STRUCT_FUNC 352
+#define ODRIVE_SDK_GET_ENCODERS_STRUCT_ARG 353
+#define ODRIVE_SDK_GET_ENCODERS_STRUCT_OUT 354
 
 #define ODRIVE_SDK_TEST_FUNC 346
 #define ODRIVE_SDK_TEST_ARG 347
@@ -74,8 +80,21 @@ typedef std::vector<uint8_t> commBuffer;
 
 #define ODRIVE_SDK_MOTOR_NO_ERROR_STATUS 0 // what odrive would return when no motor errors
 
+typedef std::vector<uint8_t> commBuffer;
+
 namespace odrive
 {
+    typedef struct {
+        float current_axis0;
+        float current_axis1;
+    } current_command_t;
+
+    typedef struct {
+        float encoder_pos_axis0;
+        float encoder_vel_axis0;
+        float encoder_pos_axis1;
+        float encoder_vel_axis1;
+    } encoder_measurements_t;
 
     class CppSdk {
 
@@ -93,6 +112,7 @@ namespace odrive
 
         int init(); // start communication
         int runCalibration();
+        int getRequestedState(int cmd, uint8_t& state);
         int allReady();
         int allIdle();
         int setCurrentCtrlMode();
@@ -104,6 +124,7 @@ namespace odrive
         int useTestFunction(int in);
         int checkErrors(uint8_t* error_codes_array); // assumed to match num_motors
         float getEncodersFunction(float current0);
+        int getEncodersStructFunction(const current_command_t& current_cmd, encoder_measurements_t& encoder_meas);
 
     private:
 
@@ -133,10 +154,14 @@ namespace odrive
         int odriveEndpointGetFloat(libusb_device_handle* handle, int endpoint_id, float& value);
         int odriveEndpointGetUInt16(libusb_device_handle* handle, int endpoint_id, uint16_t& value);
         int odriveEndpointGetUInt64(libusb_device_handle* handle, int endpoint_id, uint64_t& value);
+        int odriveEndpointGetUInt8(libusb_device_handle* handle, int id, uint8_t& value);
         int odriveEndpointSetUInt8(libusb_device_handle* handle, int endpoint_id, const uint8_t& value);
         int odriveEndpointSetFloat(libusb_device_handle* handle, int endpoint_id, const float& value);
         int odriveEndpointSetInt(libusb_device_handle* handle, int endpoint_id, const int& value);
+        int odriveEndpointSetCurrentCmd(libusb_device_handle* handle, const current_command_t& value);
+        int odriveEndpointGetEncoderMeas(libusb_device_handle* handle, encoder_measurements_t& value);
         void serializeCommBufferInt(commBuffer& buf, const int& value);
+        void serializeCommBufferUInt8(commBuffer& buf, const uint8_t& value);
         void serializeCommBufferFloat(commBuffer& buf, const float& value);
         void deserializeCommBufferInt(commBuffer& buf, int& value);
         void deserializeCommBufferFloat(commBuffer& buf, float& value);
@@ -144,6 +169,7 @@ namespace odrive
         void readShortFromCommBuffer(commBuffer& buf, short& value);
         void deserializeCommBufferUInt64(commBuffer& buf, uint64_t& value);
         void deserializeCommBufferUInt16(commBuffer& buf, uint16_t& value);
+        void deserializeCommBufferUInt8(commBuffer& v, uint8_t& value);
 
         commBuffer createODrivePacket(short seq_no, int endpoint, short response_size, const commBuffer& payload_ref);
         commBuffer decodeODrivePacket(commBuffer& buf, short& seq_no, commBuffer& received_packet);
