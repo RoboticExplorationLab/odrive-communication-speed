@@ -666,7 +666,7 @@ int CppSdk::odriveEndpointGetEncoderMeas(libusb_device_handle* handle, encoder_m
         return ODRIVE_SDK_COMM_SUCCESS;
     }
     else{
-        std::cout << "Received length is too short to decode a struct" << std::endl;
+        std::cout << "Received length is too short to decode encoder struct" << std::endl;
         return -1;
     }
 }
