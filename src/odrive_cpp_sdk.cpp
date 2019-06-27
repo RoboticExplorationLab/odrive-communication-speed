@@ -7,8 +7,7 @@
 
 using namespace odrive;
 
-CppSdk::CppSdk(const std::string* odrive_serial_numbers,
-
+CppSdk::CppSdk(const std::string& odrive_serial_number,
                const bool* motor_position_map, // false = slot 0, true = slot 1
                const float* encoder_ticks_per_radian,
                const bool* motor_relative_to_prior_motor, // false = motors do not influence eachother, true = this motor poisition is subtracted from the prior one
@@ -33,8 +32,7 @@ CppSdk::CppSdk(const std::string* odrive_serial_numbers,
     }
 
     // saved for use between creation and init
-    odrive_serial_numbers_ = new std::string[1]();
-    odrive_serial_numbers_[0].assign(odrive_serial_numbers[0]);
+    odrive_serial_number_ = odrive_serial_number;
 
     motor_to_odrive_handle_index_ = NULL;
     odrive_handles_ = NULL;
@@ -46,8 +44,8 @@ CppSdk::~CppSdk() {
         if (odrive_handles_[0]) {
             int result = libusb_release_interface(odrive_handles_[0], 0);
             if (result != LIBUSB_SUCCESS) {
-                std::cerr << "Error calling libusb_release_interface on odrive `" << odrive_serial_numbers_[0] << "`: " << result << " - " << libusb_error_name(result) << std::endl;
-                std::cerr << "Error calling libusb_release_interface on odrive `" << odrive_serial_numbers_[0] << "`: " << result << " - " << libusb_error_name(result) << std::endl;
+                std::cerr << "Error calling libusb_release_interface on odrive `" << odrive_serial_number_ << "`: " << result << " - " << libusb_error_name(result) << std::endl;
+                std::cerr << "Error calling libusb_release_interface on odrive `" << odrive_serial_number_ << "`: " << result << " - " << libusb_error_name(result) << std::endl;
             }
 
             libusb_close(odrive_handles_[0]);
@@ -58,7 +56,6 @@ CppSdk::~CppSdk() {
     delete [] encoder_ticks_per_radian_;
     delete [] zeroeth_radian_in_encoder_ticks_;
     delete [] motor_position_map_;
-    delete [] odrive_serial_numbers_;
     delete [] motor_relative_to_prior_motor_;
 
     // usb
@@ -201,7 +198,7 @@ int CppSdk::setGoalMotorPositions(const double* axes_positions_in_radians_array)
 
         int result = odriveEndpointSetFloat(odrive_handles_[0], cmd, position_in_ticks);
         if (result != LIBUSB_SUCCESS) {
-            std::cerr << "Couldn't send `" << std::to_string(cmd) << " " << std::to_string(position_in_ticks) << "` to '" << odrive_serial_numbers_[0] << "': `" << result << "` (see prior error message)" << std::endl;
+            std::cerr << "Couldn't send `" << std::to_string(cmd) << " " << std::to_string(position_in_ticks) << "` to '" << odrive_serial_number_ << "': `" << result << "` (see prior error message)" << std::endl;
             return ODRIVE_SDK_UNEXPECTED_RESPONSE;
         }
     }
@@ -221,7 +218,7 @@ int CppSdk::setCurrentSetpoint(const float* axes_current_in_A_array) {
 
         int result = odriveEndpointSetFloat(odrive_handles_[0], cmd, axes_current_in_A_array[i]);
         if (result != LIBUSB_SUCCESS) {
-            std::cerr << "Couldn't send `" << std::to_string(cmd) << " " << std::to_string(axes_current_in_A_array[i]) << "` to '" << odrive_serial_numbers_[0] << "': `" << result << "` (see prior error message)" << std::endl;
+            std::cerr << "Couldn't send `" << std::to_string(cmd) << " " << std::to_string(axes_current_in_A_array[i]) << "` to '" << odrive_serial_number_ << "': `" << result << "` (see prior error message)" << std::endl;
             return ODRIVE_SDK_UNEXPECTED_RESPONSE;
         }
     }
@@ -241,7 +238,7 @@ int CppSdk::readMotorPositions(double* axes_positions_in_radians_array) {
         int read_encoder_ticks;
         int result = odriveEndpointGetInt(odrive_handles_[0], cmd, read_encoder_ticks);
         if (result != LIBUSB_SUCCESS) {
-            std::cerr << "Couldn't send `" << std::to_string(cmd) << "` to '" << odrive_serial_numbers_[0] << "': `" << result << "` (see prior error message)" << std::endl;
+            std::cerr << "Couldn't send `" << std::to_string(cmd) << "` to '" << odrive_serial_number_ << "': `" << result << "` (see prior error message)" << std::endl;
             return ODRIVE_SDK_UNEXPECTED_RESPONSE;
         }
 
@@ -268,7 +265,7 @@ int CppSdk::readEncoders(float* axes_positions_in_cpr_array) {
         float read_encoder_ticks;
         int result = odriveEndpointGetFloat(odrive_handles_[0], cmd, read_encoder_ticks);
         if (result != LIBUSB_SUCCESS) {
-            std::cerr << "Couldn't send `" << std::to_string(cmd) << "` to '" << odrive_serial_numbers_[0] << "': `" << result << "` (see prior error message)" << std::endl;
+            std::cerr << "Couldn't send `" << std::to_string(cmd) << "` to '" << odrive_serial_number_ << "': `" << result << "` (see prior error message)" << std::endl;
             return ODRIVE_SDK_UNEXPECTED_RESPONSE;
         }
 
@@ -331,7 +328,7 @@ int CppSdk::checkErrors(uint8_t* error_codes_array) {
         uint16_t motor_error_output;
         int result = odriveEndpointGetUInt16(odrive_handles_[0], cmd, motor_error_output);
         if (result != LIBUSB_SUCCESS) {
-            std::cerr << "CppSdk::checkErrors couldn't send `" << std::to_string(cmd) << "` to '" << odrive_serial_numbers_[0] << "': `" << result << "` (see prior error message)" << std::endl;
+            std::cerr << "CppSdk::checkErrors couldn't send `" << std::to_string(cmd) << "` to '" << odrive_serial_number_ << "': `" << result << "` (see prior error message)" << std::endl;
             return ODRIVE_SDK_UNEXPECTED_RESPONSE;
         }
         error_codes_array[i] = motor_error_output;
@@ -377,7 +374,7 @@ int CppSdk::initUSBHandlesBySNs() {
                     std::cerr << "Couldn't send `" << std::to_string(ODRIVE_SDK_SERIAL_NUMBER_CMD) << "` to '0d" << std::to_string(desc.idVendor) << ":" << std::to_string(desc.idProduct) << "': `" << result << " - " << libusb_error_name(result) << "`" << std::endl;
                 } else {
                     // find the right index for it in odrive_handles_
-                    if (0 == odrive_serial_numbers_[0].compare(std::to_string(read_serial_number))) { // found!  no need to close, but need to free device list
+                    if (0 == odrive_serial_number_.compare(std::to_string(read_serial_number))) { // found!  no need to close, but need to free device list
                         odrive_handles_[0] = device_handle;
                         attached_to_handle = true;
                         break;

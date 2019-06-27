@@ -18,7 +18,7 @@ void encoderFuncODrive0_thread(){
     uint8_t num_motors = 2;
 
     odrive::CppSdk odrives(
-            odrive_serial_numbers,
+            bl_sn,
             odrive_position_per_motor,
             odrive_encoder_ticks_per_radian_per_motor,
             motor_relative_to_prior_motor,
@@ -69,7 +69,7 @@ void encoderFuncODrive1_thread(){
     uint8_t num_motors = 2;
 
     odrive::CppSdk odrives(
-            odrive_serial_numbers,
+            bl_sn,
             odrive_position_per_motor,
             odrive_encoder_ticks_per_radian_per_motor,
             motor_relative_to_prior_motor,
@@ -109,7 +109,6 @@ void encoderFuncODrive1_thread(){
 
 void encoderFuncODrive2_thread(){
     std::string bl_sn = "35765125264712";
-    std::string odrive_serial_numbers[1] = {bl_sn};
 
     bool odrive_position_per_motor[2] = {false, true};
     bool motor_relative_to_prior_motor[1] = {false};
@@ -119,7 +118,7 @@ void encoderFuncODrive2_thread(){
     uint8_t num_motors = 1;
 
     odrive::CppSdk odrives(
-            odrive_serial_numbers,
+            bl_sn,
             odrive_position_per_motor,
             odrive_encoder_ticks_per_radian_per_motor,
             motor_relative_to_prior_motor,
