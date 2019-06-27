@@ -7,8 +7,7 @@
 #include <thread>
 
 void encoderFuncODrive0_thread(){
-    std::string bl_sn = "60903547810103";
-    std::string odrive_serial_numbers[1] = {bl_sn};
+    std::string sn = "60903547810103";
 
     bool odrive_position_per_motor[2] = {false, true};
     bool motor_relative_to_prior_motor[1] = {false};
@@ -18,7 +17,7 @@ void encoderFuncODrive0_thread(){
     uint8_t num_motors = 2;
 
     odrive::CppSdk odrives(
-            bl_sn,
+            sn,
             odrive_position_per_motor,
             odrive_encoder_ticks_per_radian_per_motor,
             motor_relative_to_prior_motor,
@@ -58,8 +57,7 @@ void encoderFuncODrive0_thread(){
 }
 
 void encoderFuncODrive1_thread(){
-    std::string bl_sn = "35735059313992";
-    std::string odrive_serial_numbers[1] = {bl_sn};
+    std::string sn = "35735059313992";
 
     bool odrive_position_per_motor[2] = {false, true};
     bool motor_relative_to_prior_motor[1] = {false};
@@ -69,7 +67,7 @@ void encoderFuncODrive1_thread(){
     uint8_t num_motors = 2;
 
     odrive::CppSdk odrives(
-            bl_sn,
+            sn,
             odrive_position_per_motor,
             odrive_encoder_ticks_per_radian_per_motor,
             motor_relative_to_prior_motor,
@@ -108,7 +106,7 @@ void encoderFuncODrive1_thread(){
 }
 
 void encoderFuncODrive2_thread(){
-    std::string bl_sn = "35765125264712";
+    std::string sn = "35765125264712";
 
     bool odrive_position_per_motor[2] = {false, true};
     bool motor_relative_to_prior_motor[1] = {false};
@@ -118,7 +116,7 @@ void encoderFuncODrive2_thread(){
     uint8_t num_motors = 1;
 
     odrive::CppSdk odrives(
-            bl_sn,
+            sn,
             odrive_position_per_motor,
             odrive_encoder_ticks_per_radian_per_motor,
             motor_relative_to_prior_motor,

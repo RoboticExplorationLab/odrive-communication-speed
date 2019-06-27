@@ -139,10 +139,8 @@ namespace odrive
         std::string odrive_serial_number_;
 
         // for usb
-        libusb_device_handle** odrive_handles_;
         libusb_device_handle* odrive_handle_;
         libusb_context* libusb_context_;
-        uint8_t* motor_to_odrive_handle_index_;
         int initUSBHandlesBySNs();
 
         short outbound_seq_no_; // unique ids for packets send to odrive
