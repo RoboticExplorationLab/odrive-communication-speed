@@ -8,14 +8,12 @@
 using namespace odrive;
 
 CppSdk::CppSdk(const std::string* odrive_serial_numbers,
-               const uint8_t num_odrives,
-               const std::string* motor_to_odrive_serial_number_map,
+
                const bool* motor_position_map, // false = slot 0, true = slot 1
                const float* encoder_ticks_per_radian,
                const bool* motor_relative_to_prior_motor, // false = motors do not influence eachother, true = this motor poisition is subtracted from the prior one
                const uint8_t num_motors) {
     // read settings
-    num_odrives_ = num_odrives;
     num_motors_ = num_motors;
     encoder_ticks_per_radian_ = new float[num_motors]();
     for (uint8_t i = 0; i < num_motors; ++i) {
@@ -35,14 +33,8 @@ CppSdk::CppSdk(const std::string* odrive_serial_numbers,
     }
 
     // saved for use between creation and init
-    odrive_serial_numbers_ = new std::string[num_odrives]();
-    for (uint8_t i = 0; i < num_odrives; ++i) {
-        odrive_serial_numbers_[i].assign(odrive_serial_numbers[i]);
-    }
-    motor_to_odrive_serial_number_map_ = new std::string[num_motors]();
-    for (uint8_t i = 0; i < num_motors; ++i) {
-        motor_to_odrive_serial_number_map_[i].assign(motor_to_odrive_serial_number_map[i]);
-    }
+    odrive_serial_numbers_ = new std::string[1]();
+    odrive_serial_numbers_[0].assign(odrive_serial_numbers[0]);
 
     motor_to_odrive_handle_index_ = NULL;
     odrive_handles_ = NULL;
@@ -51,29 +43,26 @@ CppSdk::CppSdk(const std::string* odrive_serial_numbers,
 
 CppSdk::~CppSdk() {
     if (motor_to_odrive_handle_index_) {
-        for (uint8_t i = 0; i < num_odrives_; ++i) {
-            if (odrive_handles_[i]) {
-                int result = libusb_release_interface(odrive_handles_[i], 0);
-                if (result != LIBUSB_SUCCESS) {
-                    std::cerr << "Error calling libusb_release_interface on odrive `" << odrive_serial_numbers_[i] << "`: " << result << " - " << libusb_error_name(result) << std::endl;
-                }
-
-                libusb_close(odrive_handles_[i]);
-                odrive_handles_[i] = NULL;
+        if (odrive_handles_[0]) {
+            int result = libusb_release_interface(odrive_handles_[0], 0);
+            if (result != LIBUSB_SUCCESS) {
+                std::cerr << "Error calling libusb_release_interface on odrive `" << odrive_serial_numbers_[0] << "`: " << result << " - " << libusb_error_name(result) << std::endl;
+                std::cerr << "Error calling libusb_release_interface on odrive `" << odrive_serial_numbers_[0] << "`: " << result << " - " << libusb_error_name(result) << std::endl;
             }
+
+            libusb_close(odrive_handles_[0]);
+            odrive_handles_[0] = NULL;
         }
     }
 
-    if (encoder_ticks_per_radian_) delete [] encoder_ticks_per_radian_;
-    if (zeroeth_radian_in_encoder_ticks_) delete [] zeroeth_radian_in_encoder_ticks_;
-    if (motor_position_map_) delete [] motor_position_map_;
-    if (odrive_serial_numbers_) delete [] odrive_serial_numbers_;
-    if (motor_to_odrive_serial_number_map_) delete [] motor_to_odrive_serial_number_map_;
-    if (motor_relative_to_prior_motor_) delete [] motor_relative_to_prior_motor_;
+    delete [] encoder_ticks_per_radian_;
+    delete [] zeroeth_radian_in_encoder_ticks_;
+    delete [] motor_position_map_;
+    delete [] odrive_serial_numbers_;
+    delete [] motor_relative_to_prior_motor_;
 
     // usb
-    if (odrive_handles_) delete [] odrive_handles_;
-    if (motor_to_odrive_handle_index_) delete [] motor_to_odrive_handle_index_;
+    delete [] odrive_handles_;
     if (libusb_context_) { libusb_exit(libusb_context_); }
 }
 
@@ -90,26 +79,16 @@ int CppSdk::init() {
         return result; // error message should have been printed before
     }
 
-    odrive_handles_ = new libusb_device_handle*[num_odrives_] {NULL};
+    odrive_handles_ = new libusb_device_handle*[1] {NULL};
     result = initUSBHandlesBySNs();
     if (result != ODRIVE_SDK_COMM_SUCCESS) {
         return result; // error message should have been printed before
     }
-    for (uint8_t i = 0; i < num_odrives_; ++i) {
-        if (!odrive_handles_[i]) {
-            return ODRIVE_SDK_ODRIVE_WITH_SERIAL_NUMBER_NOT_FOUND;
-        }
+    if (!odrive_handles_[0]) {
+        return ODRIVE_SDK_ODRIVE_WITH_SERIAL_NUMBER_NOT_FOUND;
     }
 
-    // for each motor, reference to the index of the handle
-    motor_to_odrive_handle_index_ = new uint8_t[num_motors_]();
-    for (uint8_t i = 0; i < num_motors_; ++i) {
-        long sn_index = std::distance(odrive_serial_numbers_, std::find(odrive_serial_numbers_, odrive_serial_numbers_ + num_odrives_, motor_to_odrive_serial_number_map_[i]));
-        if (sn_index < 0 || sn_index >= num_motors_) {
-            return ODRIVE_SDK_SERIAL_NUMBER_MAP_INVALID;
-        }
-        motor_to_odrive_handle_index_[i] = (uint8_t) sn_index;
-    }
+    was_init_ = true;
 
     return ODRIVE_SDK_COMM_SUCCESS;
 }
@@ -121,16 +100,15 @@ void CppSdk::setZeroethRadianInEncoderTicks(const int16_t* zeroeth_radian_in_enc
 }
 
 int CppSdk::runCalibration(){
-    if (! motor_to_odrive_handle_index_) {
+    if (! was_init_) {
         return ODRIVE_SDK_NOT_INITIALIZED;
     }
 
     int cmd;
     for (uint8_t i = 0; i < num_motors_; ++i){
-        uint8_t handle_index = motor_to_odrive_handle_index_[i];
         cmd = motor_position_map_[i] ? ODRIVE_SDK_REQUESTED_STATE_1_CMD : ODRIVE_SDK_REQUESTED_STATE_0_CMD;
 
-        int result = odriveEndpointSetUInt8(odrive_handles_[handle_index], cmd, AXIS_STATE_FULL_CALIBRATION_SEQUENCE);
+        int result = odriveEndpointSetUInt8(odrive_handles_[0], cmd, AXIS_STATE_FULL_CALIBRATION_SEQUENCE);
         if (result != LIBUSB_SUCCESS) {
             std::cerr << "Couldn't run full calibration " << std::to_string(cmd) << "': `" << result << "` (see prior error message)" << std::endl;
             return ODRIVE_SDK_UNEXPECTED_RESPONSE;
@@ -140,13 +118,11 @@ int CppSdk::runCalibration(){
 }
 
 int CppSdk::getRequestedState(int cmd, uint8_t& state){
-    if (! motor_to_odrive_handle_index_) {
+    if (! was_init_) {
         return ODRIVE_SDK_NOT_INITIALIZED;
     }
 
-    uint8_t handle_index = motor_to_odrive_handle_index_[0];
-
-    int result = odriveEndpointGetUInt8(odrive_handles_[handle_index], cmd, state);
+    int result = odriveEndpointGetUInt8(odrive_handles_[0], cmd, state);
     if (result != LIBUSB_SUCCESS) {
         std::cerr << "Couldn't run full calibration " << std::to_string(cmd) << "': `" << result << "` (see prior error message)" << std::endl;
         return ODRIVE_SDK_UNEXPECTED_RESPONSE;
@@ -155,16 +131,15 @@ int CppSdk::getRequestedState(int cmd, uint8_t& state){
 }
 
 int CppSdk::allReady(){
-    if (! motor_to_odrive_handle_index_) {
+    if (! was_init_) {
         return ODRIVE_SDK_NOT_INITIALIZED;
     }
 
     int cmd;
     for (uint8_t i = 0; i < num_motors_; ++i){
-        uint8_t handle_index = motor_to_odrive_handle_index_[i];
         cmd = motor_position_map_[i] ? ODRIVE_SDK_REQUESTED_STATE_1_CMD : ODRIVE_SDK_REQUESTED_STATE_0_CMD;
 
-        int result = odriveEndpointSetUInt8(odrive_handles_[handle_index], cmd, AXIS_STATE_CLOSED_LOOP_CONTROL);
+        int result = odriveEndpointSetUInt8(odrive_handles_[0], cmd, AXIS_STATE_CLOSED_LOOP_CONTROL);
         if (result != LIBUSB_SUCCESS) {
             std::cerr << "Couldn't set to closed loop " << std::to_string(cmd) << "': `" << result << "` (see prior error message)" << std::endl;
             return ODRIVE_SDK_UNEXPECTED_RESPONSE;
@@ -174,16 +149,15 @@ int CppSdk::allReady(){
 }
 
 int CppSdk::allIdle(){
-    if (! motor_to_odrive_handle_index_) {
+    if (! was_init_) {
         return ODRIVE_SDK_NOT_INITIALIZED;
     }
 
     int cmd;
     for (uint8_t i = 0; i < num_motors_; ++i){
-        uint8_t handle_index = motor_to_odrive_handle_index_[i];
         cmd = motor_position_map_[i] ? ODRIVE_SDK_REQUESTED_STATE_1_CMD : ODRIVE_SDK_REQUESTED_STATE_0_CMD;
 
-        int result = odriveEndpointSetUInt8(odrive_handles_[handle_index], cmd, AXIS_STATE_IDLE);
+        int result = odriveEndpointSetUInt8(odrive_handles_[0], cmd, AXIS_STATE_IDLE);
         if (result != LIBUSB_SUCCESS) {
             std::cerr << "Couldn't set to idle " << std::to_string(cmd) << "': `" << result << "` (see prior error message)" << std::endl;
             return ODRIVE_SDK_UNEXPECTED_RESPONSE;
@@ -193,16 +167,15 @@ int CppSdk::allIdle(){
 }
 
 int CppSdk::setCurrentCtrlMode(){
-    if (! motor_to_odrive_handle_index_) {
+    if (! was_init_) {
         return ODRIVE_SDK_NOT_INITIALIZED;
     }
 
     int cmd;
     for (uint8_t i = 0; i < num_motors_; ++i){
-        uint8_t handle_index = motor_to_odrive_handle_index_[i];
         cmd = motor_position_map_[i] ? ODRIVE_SDK_CONTROL_MODE_0_CMD : ODRIVE_SDK_CONTROL_MODE_1_CMD;
 
-        int result = odriveEndpointSetUInt8(odrive_handles_[handle_index], cmd, CTRL_MODE_CURRENT_CONTROL);
+        int result = odriveEndpointSetUInt8(odrive_handles_[0], cmd, CTRL_MODE_CURRENT_CONTROL);
         if (result != LIBUSB_SUCCESS) {
             std::cerr << "Couldn't set to current control " << std::to_string(cmd) << "': `" << result << "` (see prior error message)" << std::endl;
             return ODRIVE_SDK_UNEXPECTED_RESPONSE;
@@ -212,7 +185,7 @@ int CppSdk::setCurrentCtrlMode(){
 }
 
 int CppSdk::setGoalMotorPositions(const double* axes_positions_in_radians_array) {
-    if (! motor_to_odrive_handle_index_) {
+    if (! was_init_) {
         return ODRIVE_SDK_NOT_INITIALIZED;
     }
 
@@ -224,12 +197,11 @@ int CppSdk::setGoalMotorPositions(const double* axes_positions_in_radians_array)
         }
         float position_in_ticks = (int) (zeroeth_radian_in_encoder_ticks_[i] + target_ticks);
 
-        uint8_t handle_index = motor_to_odrive_handle_index_[i];
         cmd = motor_position_map_[i] ? ODRIVE_SDK_SET_POS_1_CMD : ODRIVE_SDK_SET_POS_0_CMD;
 
-        int result = odriveEndpointSetFloat(odrive_handles_[handle_index], cmd, position_in_ticks);
+        int result = odriveEndpointSetFloat(odrive_handles_[0], cmd, position_in_ticks);
         if (result != LIBUSB_SUCCESS) {
-            std::cerr << "Couldn't send `" << std::to_string(cmd) << " " << std::to_string(position_in_ticks) << "` to '" << odrive_serial_numbers_[handle_index] << "': `" << result << "` (see prior error message)" << std::endl;
+            std::cerr << "Couldn't send `" << std::to_string(cmd) << " " << std::to_string(position_in_ticks) << "` to '" << odrive_serial_numbers_[0] << "': `" << result << "` (see prior error message)" << std::endl;
             return ODRIVE_SDK_UNEXPECTED_RESPONSE;
         }
     }
@@ -238,19 +210,18 @@ int CppSdk::setGoalMotorPositions(const double* axes_positions_in_radians_array)
 }
 
 int CppSdk::setCurrentSetpoint(const float* axes_current_in_A_array) {
-    if (! motor_to_odrive_handle_index_) {
+    if (! was_init_) {
         return ODRIVE_SDK_NOT_INITIALIZED;
     }
 
     int cmd;
     for (uint8_t i = 0; i < num_motors_; ++i) {
 
-        uint8_t handle_index = motor_to_odrive_handle_index_[i];
         cmd = motor_position_map_[i] ? ODRIVE_SDK_SET_CURRENT_1_CMD : ODRIVE_SDK_SET_CURRENT_0_CMD;
 
-        int result = odriveEndpointSetFloat(odrive_handles_[handle_index], cmd, axes_current_in_A_array[i]);
+        int result = odriveEndpointSetFloat(odrive_handles_[0], cmd, axes_current_in_A_array[i]);
         if (result != LIBUSB_SUCCESS) {
-            std::cerr << "Couldn't send `" << std::to_string(cmd) << " " << std::to_string(axes_current_in_A_array[i]) << "` to '" << odrive_serial_numbers_[handle_index] << "': `" << result << "` (see prior error message)" << std::endl;
+            std::cerr << "Couldn't send `" << std::to_string(cmd) << " " << std::to_string(axes_current_in_A_array[i]) << "` to '" << odrive_serial_numbers_[0] << "': `" << result << "` (see prior error message)" << std::endl;
             return ODRIVE_SDK_UNEXPECTED_RESPONSE;
         }
     }
@@ -259,19 +230,18 @@ int CppSdk::setCurrentSetpoint(const float* axes_current_in_A_array) {
 }
 
 int CppSdk::readMotorPositions(double* axes_positions_in_radians_array) {
-    if (! motor_to_odrive_handle_index_) {
+    if (! was_init_) {
         return ODRIVE_SDK_NOT_INITIALIZED;
     }
 
     int cmd;
     for (uint8_t i = 0; i < num_motors_; ++i) {
-        uint8_t handle_index = motor_to_odrive_handle_index_[i];
         cmd = motor_position_map_[i] ? ODRIVE_SDK_GET_ENCODER_1_STATE : ODRIVE_SDK_GET_ENCODER_0_STATE;
 
         int read_encoder_ticks;
-        int result = odriveEndpointGetInt(odrive_handles_[handle_index], cmd, read_encoder_ticks);
+        int result = odriveEndpointGetInt(odrive_handles_[0], cmd, read_encoder_ticks);
         if (result != LIBUSB_SUCCESS) {
-            std::cerr << "Couldn't send `" << std::to_string(cmd) << "` to '" << odrive_serial_numbers_[handle_index] << "': `" << result << "` (see prior error message)" << std::endl;
+            std::cerr << "Couldn't send `" << std::to_string(cmd) << "` to '" << odrive_serial_numbers_[0] << "': `" << result << "` (see prior error message)" << std::endl;
             return ODRIVE_SDK_UNEXPECTED_RESPONSE;
         }
 
@@ -287,19 +257,18 @@ int CppSdk::readMotorPositions(double* axes_positions_in_radians_array) {
 }
 
 int CppSdk::readEncoders(float* axes_positions_in_cpr_array) {
-    if (! motor_to_odrive_handle_index_) {
+    if (! was_init_) {
         return ODRIVE_SDK_NOT_INITIALIZED;
     }
 
     int cmd;
     for (uint8_t i = 0; i < num_motors_; ++i) {
-        uint8_t handle_index = motor_to_odrive_handle_index_[i];
         cmd = motor_position_map_[i] ? ODRIVE_SDK_GET_ENCODER_1_STATE : ODRIVE_SDK_GET_ENCODER_0_STATE;
 
         float read_encoder_ticks;
-        int result = odriveEndpointGetFloat(odrive_handles_[handle_index], cmd, read_encoder_ticks);
+        int result = odriveEndpointGetFloat(odrive_handles_[0], cmd, read_encoder_ticks);
         if (result != LIBUSB_SUCCESS) {
-            std::cerr << "Couldn't send `" << std::to_string(cmd) << "` to '" << odrive_serial_numbers_[handle_index] << "': `" << result << "` (see prior error message)" << std::endl;
+            std::cerr << "Couldn't send `" << std::to_string(cmd) << "` to '" << odrive_serial_numbers_[0] << "': `" << result << "` (see prior error message)" << std::endl;
             return ODRIVE_SDK_UNEXPECTED_RESPONSE;
         }
 
@@ -309,64 +278,60 @@ int CppSdk::readEncoders(float* axes_positions_in_cpr_array) {
 }
 
 int CppSdk::useTestFunction(int in){
-    uint8_t handle_index = motor_to_odrive_handle_index_[0];
     int cmd = ODRIVE_SDK_TEST_ARG;
 
-    odriveEndpointSetInt(odrive_handles_[handle_index], cmd, in);
+    odriveEndpointSetInt(odrive_handles_[0], cmd, in);
 
     cmd = ODRIVE_SDK_TEST_FUNC;
-    odriveEndpointSetInt(odrive_handles_[handle_index], cmd, in);
+    odriveEndpointSetInt(odrive_handles_[0], cmd, in);
 
     cmd = ODRIVE_SDK_TEST_OUT;
 
     int res;
-    odriveEndpointGetInt(odrive_handles_[handle_index], cmd, res);
+    odriveEndpointGetInt(odrive_handles_[0], cmd, res);
 
     return res;
 }
 
 float CppSdk::getEncodersFunction(float current0) {
-    uint8_t handle_index = motor_to_odrive_handle_index_[0];
     int cmd = ODRIVE_SDK_GET_ENCODERS_ARG;
-    odriveEndpointSetFloat(odrive_handles_[handle_index], cmd, current0);
+    odriveEndpointSetFloat(odrive_handles_[0], cmd, current0);
 
     cmd = ODRIVE_SDK_GET_ENCODERS_FUNC;
-    odriveEndpointSetFloat(odrive_handles_[handle_index], cmd, 0);
+    odriveEndpointSetFloat(odrive_handles_[0], cmd, 0);
 
     cmd = ODRIVE_SDK_GET_ENCODERS_OUT;
     float read_encoder_ticks;
-    odriveEndpointGetFloat(odrive_handles_[handle_index], cmd, read_encoder_ticks);
+    odriveEndpointGetFloat(odrive_handles_[0], cmd, read_encoder_ticks);
 
     return read_encoder_ticks;
 }
 
 int CppSdk::getEncodersStructFunction(const current_command_t& current_cmd, encoder_measurements_t& encoder_meas) {
     int result;
-    uint8_t handle_index = motor_to_odrive_handle_index_[0];
     int cmd = ODRIVE_SDK_GET_ENCODERS_ARG;
-    result = odriveEndpointSetCurrentCmd(odrive_handles_[handle_index], current_cmd);
+    result = odriveEndpointSetCurrentCmd(odrive_handles_[0], current_cmd);
 
     cmd = ODRIVE_SDK_GET_ENCODERS_STRUCT_FUNC;
-    result = odriveEndpointSetFloat(odrive_handles_[handle_index], cmd, 0);
+    result = odriveEndpointSetFloat(odrive_handles_[0], cmd, 0);
 
-    result = odriveEndpointGetEncoderMeas(odrive_handles_[handle_index], encoder_meas);
+    result = odriveEndpointGetEncoderMeas(odrive_handles_[0], encoder_meas);
 
     return result;
 }
 
 int CppSdk::checkErrors(uint8_t* error_codes_array) {
-    if (! motor_to_odrive_handle_index_) {
+    if (! was_init_) {
         return ODRIVE_SDK_NOT_INITIALIZED;
     }
 
     int cmd;
     for (uint8_t i = 0; i < num_motors_; ++i) {
-        uint8_t handle_index = motor_to_odrive_handle_index_[i];
         cmd = motor_position_map_[i] ? ODRIVE_SDK_GET_MOTOR_1_ERROR : ODRIVE_SDK_GET_MOTOR_0_ERROR;
         uint16_t motor_error_output;
-        int result = odriveEndpointGetUInt16(odrive_handles_[handle_index], cmd, motor_error_output);
+        int result = odriveEndpointGetUInt16(odrive_handles_[0], cmd, motor_error_output);
         if (result != LIBUSB_SUCCESS) {
-            std::cerr << "CppSdk::checkErrors couldn't send `" << std::to_string(cmd) << "` to '" << odrive_serial_numbers_[handle_index] << "': `" << result << "` (see prior error message)" << std::endl;
+            std::cerr << "CppSdk::checkErrors couldn't send `" << std::to_string(cmd) << "` to '" << odrive_serial_numbers_[0] << "': `" << result << "` (see prior error message)" << std::endl;
             return ODRIVE_SDK_UNEXPECTED_RESPONSE;
         }
         error_codes_array[i] = motor_error_output;
@@ -412,14 +377,10 @@ int CppSdk::initUSBHandlesBySNs() {
                     std::cerr << "Couldn't send `" << std::to_string(ODRIVE_SDK_SERIAL_NUMBER_CMD) << "` to '0d" << std::to_string(desc.idVendor) << ":" << std::to_string(desc.idProduct) << "': `" << result << " - " << libusb_error_name(result) << "`" << std::endl;
                 } else {
                     // find the right index for it in odrive_handles_
-
-                    std::cout << "Result: "<< result << "Serial Number: " << std::to_string(read_serial_number) << std::endl;
-                    for (uint8_t i = 0; i < num_odrives_; ++i) {
-                        if (0 == odrive_serial_numbers_[i].compare(std::to_string(read_serial_number))) { // found!  no need to close, but need to free device list
-                            odrive_handles_[i] = device_handle;
-                            attached_to_handle = true;
-                            break;
-                        }
+                    if (0 == odrive_serial_numbers_[0].compare(std::to_string(read_serial_number))) { // found!  no need to close, but need to free device list
+                        odrive_handles_[0] = device_handle;
+                        attached_to_handle = true;
+                        break;
                     }
                 }
 

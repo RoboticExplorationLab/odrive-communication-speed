@@ -101,8 +101,6 @@ namespace odrive
     public:
         CppSdk(
                const std::string* odrive_serial_numbers,
-               const uint8_t num_odrives,
-               const std::string* motor_to_odrive_serial_number_map,
                const bool* motor_position_map, // false = slot 0, true = slot 1
                const float* encoder_ticks_per_radian,
                const bool* motor_relative_to_prior_motor, // true if there is influence, like a belt drive
@@ -129,16 +127,16 @@ namespace odrive
     private:
 
         // read settings
-        uint8_t num_odrives_;
         uint8_t num_motors_;
         float* encoder_ticks_per_radian_;
         int16_t* zeroeth_radian_in_encoder_ticks_;
         bool* motor_position_map_;
         bool* motor_relative_to_prior_motor_;
 
+        bool was_init_;
+
         // saved for use between creation and init
         std::string* odrive_serial_numbers_;
-        std::string* motor_to_odrive_serial_number_map_;
 
         // for usb
         libusb_device_handle** odrive_handles_;
