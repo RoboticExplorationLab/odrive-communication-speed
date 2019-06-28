@@ -15,6 +15,7 @@
 #define ODRIVE_SDK_PROTOCOL_VERION 1
 //#define ODRIVE_SDK_DEFAULT_CRC_VALUE 13145  // found with running expore_odrive -v and outputting my own information
 #define ODRIVE_SDK_DEFAULT_CRC_VALUE 49760 //39224 // CRC calculated over JSON -> every time protocols changed, CRC changes
+                                                    // use reverse endian value from the JSON checksum outputted by (odrivetool --verbose)
 #define ODRIVE_SDK_MAX_BYTES_TO_RECEIVE 64
 #define ODRIVE_SDK_TIMEOUT 1000
 #define ODRIVE_SDK_MAX_RESULT_LENGTH 100
@@ -122,7 +123,7 @@ namespace odrive
         int useTestFunction(int in);
         int checkErrors(uint8_t* error_codes_array); // assumed to match num_motors
         float getEncodersFunction(float current0);
-        int getEncodersStructFunction(const current_command_t& current_cmd, encoder_measurements_t& encoder_meas);
+        int getEncodersStructFunction(const current_command_t& current_cmd, encoder_measurements_t* encoder_meas);
 
     private:
 
@@ -156,7 +157,7 @@ namespace odrive
         int odriveEndpointSetFloat(libusb_device_handle* handle, int endpoint_id, const float& value);
         int odriveEndpointSetInt(libusb_device_handle* handle, int endpoint_id, const int& value);
         int odriveEndpointSetCurrentCmd(libusb_device_handle* handle, const current_command_t& value);
-        int odriveEndpointGetEncoderMeas(libusb_device_handle* handle, encoder_measurements_t& value);
+        int odriveEndpointGetEncoderMeas(libusb_device_handle* handle, encoder_measurements_t* value);
         void serializeCommBufferInt(commBuffer& buf, const int& value);
         void serializeCommBufferUInt8(commBuffer& buf, const uint8_t& value);
         void serializeCommBufferFloat(commBuffer& buf, const float& value);
