@@ -15,6 +15,7 @@
 #define ODRIVE_SDK_PROTOCOL_VERION 1
 //#define ODRIVE_SDK_DEFAULT_CRC_VALUE 13145  // found with running expore_odrive -v and outputting my own information
 #define ODRIVE_SDK_DEFAULT_CRC_VALUE 49760 //39224 // CRC calculated over JSON -> every time protocols changed, CRC changes
+                                                    // use reverse endian value from the JSON checksum outputted by (odrivetool --verbose)
 #define ODRIVE_SDK_MAX_BYTES_TO_RECEIVE 64
 #define ODRIVE_SDK_TIMEOUT 1000
 #define ODRIVE_SDK_MAX_RESULT_LENGTH 100
@@ -100,9 +101,7 @@ namespace odrive
 
     public:
         CppSdk(
-               const std::string* odrive_serial_numbers,
-               const uint8_t num_odrives,
-               const std::string* motor_to_odrive_serial_number_map,
+               const std::string& odrive_serial_number,
                const bool* motor_position_map, // false = slot 0, true = slot 1
                const float* encoder_ticks_per_radian,
                const bool* motor_relative_to_prior_motor, // true if there is influence, like a belt drive
@@ -124,26 +123,25 @@ namespace odrive
         int useTestFunction(int in);
         int checkErrors(uint8_t* error_codes_array); // assumed to match num_motors
         float getEncodersFunction(float current0);
-        int getEncodersStructFunction(const current_command_t& current_cmd, encoder_measurements_t& encoder_meas);
+        int getEncodersStructFunction(const current_command_t& current_cmd, encoder_measurements_t* encoder_meas);
 
     private:
 
         // read settings
-        uint8_t num_odrives_;
         uint8_t num_motors_;
         float* encoder_ticks_per_radian_;
         int16_t* zeroeth_radian_in_encoder_ticks_;
         bool* motor_position_map_;
         bool* motor_relative_to_prior_motor_;
 
+        bool was_init_;
+
         // saved for use between creation and init
-        std::string* odrive_serial_numbers_;
-        std::string* motor_to_odrive_serial_number_map_;
+        std::string odrive_serial_number_;
 
         // for usb
-        libusb_device_handle** odrive_handles_;
+        libusb_device_handle* odrive_handle_;
         libusb_context* libusb_context_;
-        uint8_t* motor_to_odrive_handle_index_;
         int initUSBHandlesBySNs();
 
         short outbound_seq_no_; // unique ids for packets send to odrive
@@ -159,7 +157,7 @@ namespace odrive
         int odriveEndpointSetFloat(libusb_device_handle* handle, int endpoint_id, const float& value);
         int odriveEndpointSetInt(libusb_device_handle* handle, int endpoint_id, const int& value);
         int odriveEndpointSetCurrentCmd(libusb_device_handle* handle, const current_command_t& value);
-        int odriveEndpointGetEncoderMeas(libusb_device_handle* handle, encoder_measurements_t& value);
+        int odriveEndpointGetEncoderMeas(libusb_device_handle* handle, encoder_measurements_t* value);
         void serializeCommBufferInt(commBuffer& buf, const int& value);
         void serializeCommBufferUInt8(commBuffer& buf, const uint8_t& value);
         void serializeCommBufferFloat(commBuffer& buf, const float& value);
