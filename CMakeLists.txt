@@ -8,6 +8,13 @@ set(CMAKE_CXX_STANDARD 14)
 SET(CMAKE_CXX_FLAGS -pthread)
 
 find_package(PkgConfig REQUIRED)
+
+set(Boost_USE_STATIC_LIBS        ON) # only find static libs
+set(Boost_USE_MULTITHREADED      ON)
+set(Boost_USE_STATIC_RUNTIME    OFF)
+find_package(Boost 1.71.0 COMPONENTS date_time filesystem system ...)
+include_directories(${Boost_INCLUDE_DIRS})
+
 pkg_search_module(LIBUSB1 REQUIRED libusb-1.0)
 
 include_directories(.)
@@ -21,6 +28,8 @@ add_executable(odrive_test src/main.cpp)
 
 add_library(odrive_cpp_sdk src/odrive_cpp_sdk.cpp)
 install(TARGETS odrive_cpp_sdk DESTINATION lib)
+
+target_link_libraries(odrive_cpp_sdk ${Boost_LIBRARIES})
 
 target_link_libraries(odrive_cpp_sdk ${LIBUSB1_LIBRARIES})
 
