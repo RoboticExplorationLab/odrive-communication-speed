@@ -15,7 +15,9 @@ int main(int argc, const char * argv[]) {
 
     std::string bl_sn = "60903547810103";
     std::string br_sn = "35735059313992";
-    std::string test_sn = "35765125264712";
+
+    // ODrive in the tupperware with test hardware
+    std::string test_sn = "35722173822280";
 
     bool odrive_position_per_motor[2] = {false, true};
     bool motor_relative_to_prior_motor[1] = {false};

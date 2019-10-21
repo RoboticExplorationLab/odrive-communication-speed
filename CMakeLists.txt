@@ -26,7 +26,8 @@ link_directories(${LIBUSB1_LIBRARY_DIRS})
 
 add_executable(odrive_test src/main.cpp)
 
-add_library(odrive_cpp_sdk src/odrive_cpp_sdk.cpp)
+add_library(odrive_cpp_sdk SHARED src/odrive_cpp_sdk.cpp)
+
 install(TARGETS odrive_cpp_sdk DESTINATION lib)
 
 target_link_libraries(odrive_cpp_sdk ${Boost_LIBRARIES})

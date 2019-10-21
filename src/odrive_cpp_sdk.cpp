@@ -432,10 +432,38 @@ int CppSdk::odriveEndpointRequest(libusb_device_handle* handle, int endpoint_id,
           return result;
       }
 
+      /*
+      - the payload data in receive_bytes is apparently in little endian format (see odrive protocol documentation) so
+      the payload data in receive_buffer will also be in little endian format.
+      - little endian format means the least significant bytes are first
+      - as a reminder from the ODrive documentation, receive_buffer has the format:
+    ** REQUEST **
+    Bytes 0, 1 Sequence number, MSB = 0
+        Currently the server does not care about ordering and does not filter resent messages.
+    Bytes 2, 3 Endpoint ID
+        The IDs of all endpoints can be obtained from the JSON definition. The JSON definition can be obtained by reading from endpoint 0. If (and only if) the MSB is set to 1 the client expects a response for this request.
+    Bytes 4, 5 Expected response size
+        The number of bytes that should be returned to the client. If the client doesn’t need any response data, it can set this value to 0. The operation will still be acknowledged if the MSB in EndpointID is set.
+    Bytes 6 to N-3 Payload
+        The length of the payload is determined by the total packet size. The format of the payload depends on the endpoint type. The endpoint type can be obtained from the JSON definition.
+    Bytes N-2, N-1
+        For endpoint 0: Protocol version (currently 1). A server shall ignore packets with other values.
+        For all other endpoints: The CRC16 calculated over the JSON definition. The CRC16 init value is the protocol version (currently 1). A server shall ignore packets that set this field incorrectly. See protocol.hpp for CRC details.
+
+    ** RESPONSE **
+
+    Bytes 0, 1 Sequence number, MSB = 1
+        The sequence number of the request to which this is the response.
+    Bytes 2, 3 Payload
+        The length of the payload tends to be equal to the number of expected bytes as indicated in the request. The server must not expect the client to accept more bytes than it requested.
+    */
+
+
       for (int i = 0; i < received_bytes; i++) {
           receive_buffer.push_back(receive_bytes[i]);
       }
 
+      // Duplicate argument receive_buffer
       received_payload = decodeODrivePacket(receive_buffer, received_seq_no, receive_buffer);
 
 	  /*
@@ -662,12 +690,21 @@ void CppSdk::serializeCommBufferUInt8(commBuffer& buf, const uint8_t& value) {
 void CppSdk::deserializeCommBufferInt(commBuffer& byte_array, int& value) {
   //TODO: Check that -ve values are being converted correctly.
   value = 0;
+
+  // BUG!
+  // This for loop assumes big-endian, but byte_array is actually little-endian!
+  // The loop puts byte_array[0] at the front of the binary representation of value, and last byte of byte_array at
+  // the end of the binary representation. This would only be valid for big-endian systems.
+  // x86 and ARM processors are little-endian!
+
   for(int i = 0; i < byte_array.size(); ++i) {
      value <<= 8;
      value |= byte_array[i];
   }
 
-  //Convert the byte array to little endian. It's currently being read in as a bigendian.
+  // THIS IS NOT QUITE RIGHT! "Convert the byte array to little endian. It's currently being read in as a bigendian."
+  // The variable "value" has big-endian ordering from the way the for loop works, and so to convert it to the x86
+  // architecture, we have to convert it to little-endian.
   value = boost::endian::endian_reverse(value);
 }
 
@@ -745,6 +782,11 @@ commBuffer CppSdk::createODrivePacket(short seq_no, int endpoint_id, short respo
 }
 
 commBuffer CppSdk::decodeODrivePacket(commBuffer& buf, short& seq_no, commBuffer& received_packet) {
+    /*
+     * Decodes an ODrive packet into its sequence number and payload data
+     * Bug: received_packet is not used!
+     * The order of payload is maintained and so will be little endian
+     */
     commBuffer payload;
     readShortFromCommBuffer(buf, seq_no); // reads 2 bytes so start next for loop at 2
     seq_no &= 0x7fff;
