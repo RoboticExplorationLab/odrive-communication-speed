@@ -49,39 +49,31 @@ void setCurrentCtrlMode(ODrive_t odrive) {
 }
 
 
-void sendCurrentGetEncoder(ODrive_t odrive, const odrive::current_command_t& current, odrive::encoder_measurements_t& encoder){
+int allIdle(ODrive_t odrive) {
+    auto typed_ptr = static_cast<odrive::CppSdk *>(odrive);
+    return typed_ptr->allIdle();
+}
+
+
+void sendCurrentGetEncoder(ODrive_t odrive, const odrive::current_command_t &current,
+                           odrive::encoder_measurements_t &encoder) {
     auto typed_ptr = static_cast<odrive::CppSdk *>(odrive);
     typed_ptr->getEncodersStructFunction(current, &encoder);
 }
 
 
-void* controlODrive(ODrive_t odrive, float cmd0, float cmd1, float* pos0, float* vel0, float* pos1, float* vel1) {
+void *controlODrive(ODrive_t odrive, float cmd0, float cmd1, float *pos0, float *vel0, float *pos1, float *vel1) {
     odrive::current_command_t current_cmd = {cmd0, cmd1};
     odrive::encoder_measurements_t encoder_meas;
     return new std::thread(sendCurrentGetEncoder, std::ref(odrive), std::ref(current_cmd), std::ref(encoder_meas));
 }
 
 
-void joinThread(void* thread) {
-    auto typed_ptr = static_cast<std::thread*>(thread);
+void joinThread(void *thread) {
+    auto typed_ptr = static_cast<std::thread *>(thread);
     typed_ptr->join();
 }
 
-
-//void controlODrives(ODrive_t *odrive, int n_odrives, ) {
-//    std::vector<std::thread> odrive_threads;
-//
-//
-//
-//    for (int i = 0; i < n_odrives; i++) {
-//        auto typed_ptr = static_cast<odrive::CppSdk *>(odrive[i]);
-//        odrive_threads.push_back(
-//                std::thread(sendCurrentGetEncoder, std::ref(typed_ptr), std::ref(current_cmd), std::ref(encoder_meas)));
-//    }
-//    for (int i = 0; i < n_odrives; i++) {
-//        odrive_threads[i].join();
-//    }
-//}
 
 #ifdef __cplusplus
 }
