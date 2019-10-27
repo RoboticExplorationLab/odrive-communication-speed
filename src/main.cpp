@@ -114,6 +114,6 @@ int main(int argc, const char * argv[]) {
     float mid_avg = mid_sum / NUM_LOOPS;
     std::cout << "ODrive total function time = " << total_avg << std::endl;
     std::cout << "ODrive total function time = " << mid_avg << std::endl;
-
+    odrive_test.allIdle();
     return 1;
 }
