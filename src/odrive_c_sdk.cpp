@@ -2,21 +2,24 @@
 #include "odrive_cpp_sdk.h"
 #include <thread>
 
+void sendCurrentGetEncoder(ODrive_t odrive, const odrive::current_command_t &current,
+                           odrive::encoder_measurements_t &encoder) {
+    auto typed_ptr = static_cast<odrive::CppSdk *>(odrive);
+    typed_ptr->getEncodersStructFunction(current, &encoder);
+}
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 ODrive_t ODrive(const char *serial_number) {
-
     std::string serial_num(serial_number);
-
-    bool odrive_position_per_motor[2] = {false, true};
-    bool motor_relative_to_prior_motor[1] = {false};
+    bool motor_position_map[2] = {0, 1};
     float odrive_encoder_ticks_per_radian_per_motor[1] = {954.949};
     uint8_t num_motors = 2;
 
-    return new odrive::CppSdk(serial_num, odrive_position_per_motor, odrive_encoder_ticks_per_radian_per_motor,
-                              motor_relative_to_prior_motor, num_motors);
+    return new odrive::CppSdk(serial_num, motor_position_map, odrive_encoder_ticks_per_radian_per_motor,
+                              num_motors);
 }
 
 
@@ -52,13 +55,6 @@ void setCurrentCtrlMode(ODrive_t odrive) {
 int allIdle(ODrive_t odrive) {
     auto typed_ptr = static_cast<odrive::CppSdk *>(odrive);
     return typed_ptr->allIdle();
-}
-
-
-void sendCurrentGetEncoder(ODrive_t odrive, const odrive::current_command_t &current,
-                           odrive::encoder_measurements_t &encoder) {
-    auto typed_ptr = static_cast<odrive::CppSdk *>(odrive);
-    typed_ptr->getEncodersStructFunction(current, &encoder);
 }
 
 

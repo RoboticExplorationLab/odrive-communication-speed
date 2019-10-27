@@ -1,16 +1,12 @@
 #include "odrive_cpp_sdk.h"
-#include <cstring>
-#include <algorithm>
-#include <typeinfo>
 #include <string>
 #include <boost/endian/conversion.hpp>
 
 using namespace odrive;
 
 CppSdk::CppSdk(const std::string& odrive_serial_number,
-               const bool* motor_position_map, // false = slot 0, true = slot 1
+               const bool* motor_position_map, // 0/false = axis 0, 1/true = axis 1
                const float* encoder_ticks_per_radian,
-               const bool* motor_relative_to_prior_motor, // false = motors do not influence eachother, true = this motor poisition is subtracted from the prior one
                const uint8_t num_motors) {
     // read settings
     num_motors_ = num_motors;
@@ -22,19 +18,21 @@ CppSdk::CppSdk(const std::string& odrive_serial_number,
     for (uint8_t i = 0; i < num_motors; ++i) {
         zeroeth_radian_in_encoder_ticks_[i] = 0;
     }
+
     motor_position_map_ = new bool[num_motors]();
     for (uint8_t i = 0; i < num_motors; ++i) {
         motor_position_map_[i] = motor_position_map[i];
     }
-    motor_relative_to_prior_motor_ = new bool[num_motors]();
-    for (uint8_t i = 0; i < num_motors; ++i) {
-        motor_relative_to_prior_motor_[i] = motor_relative_to_prior_motor[i];
-    }
+
+    outbound_seq_no_ = 0;
+
+    was_init_ = false;
 
     // saved for use between creation and init
     odrive_serial_number_ = odrive_serial_number;
 
-    libusb_context_ = NULL;
+    libusb_context_ = nullptr;
+    odrive_handle_ = nullptr;
 }
 
 CppSdk::~CppSdk() {
@@ -42,29 +40,26 @@ CppSdk::~CppSdk() {
         int result = libusb_release_interface(odrive_handle_, 0);
         if (result != LIBUSB_SUCCESS) {
             std::cerr << "Error calling libusb_release_interface on odrive `" << odrive_serial_number_ << "`: " << result << " - " << libusb_error_name(result) << std::endl;
-            std::cerr << "Error calling libusb_release_interface on odrive `" << odrive_serial_number_ << "`: " << result << " - " << libusb_error_name(result) << std::endl;
         }
 
         libusb_close(odrive_handle_);
-        odrive_handle_ = NULL;
+        odrive_handle_ = nullptr;
     }
 
     delete [] encoder_ticks_per_radian_;
-    delete [] zeroeth_radian_in_encoder_ticks_;
     delete [] motor_position_map_;
-    delete [] motor_relative_to_prior_motor_;
+    delete [] zeroeth_radian_in_encoder_ticks_;
 
     // usb
     if (libusb_context_) { libusb_exit(libusb_context_); }
 }
 
 int CppSdk::init() {
-    if (libusb_context_ != NULL) {
-      std::cerr << "ODrive SDK's init function has been called twice." << std::endl;
+    if (libusb_context_ != nullptr) {
+      std::cerr << "ODrive SDK's init function has already been called." << std::endl;
       return ODRIVE_SDK_NOT_INITIALIZED;
     }
 
-    outbound_seq_no_ = 0;
     // for USB
     int result = libusb_init(&libusb_context_);
     if (result != LIBUSB_SUCCESS) {
@@ -115,7 +110,7 @@ int CppSdk::getRequestedState(int cmd, uint8_t& state){
 
     int result = odriveEndpointGetUInt8(odrive_handle_, cmd, state);
     if (result != LIBUSB_SUCCESS) {
-        std::cerr << "Couldn't run full calibration " << std::to_string(cmd) << "': `" << result << "` (see prior error message)" << std::endl;
+        std::cerr << "Couldn't get requested state " << std::to_string(cmd) << "': `" << result << "` (see prior error message)" << std::endl;
         return ODRIVE_SDK_UNEXPECTED_RESPONSE;
     }
     return ODRIVE_SDK_COMM_SUCCESS;
@@ -164,7 +159,7 @@ int CppSdk::setCurrentCtrlMode(){
 
     int cmd;
     for (uint8_t i = 0; i < num_motors_; ++i){
-        cmd = motor_position_map_[i] ? ODRIVE_SDK_CONTROL_MODE_0_CMD : ODRIVE_SDK_CONTROL_MODE_1_CMD;
+        cmd = motor_position_map_[i] ? ODRIVE_SDK_CONTROL_MODE_1_CMD : ODRIVE_SDK_CONTROL_MODE_0_CMD;
 
         int result = odriveEndpointSetUInt8(odrive_handle_, cmd, CTRL_MODE_CURRENT_CONTROL);
         if (result != LIBUSB_SUCCESS) {
@@ -183,9 +178,6 @@ int CppSdk::setGoalMotorPositions(const double* axes_positions_in_radians_array)
     int cmd;
     for (uint8_t i = 0; i < num_motors_; ++i) {
         double target_ticks = axes_positions_in_radians_array[i] * encoder_ticks_per_radian_[i];
-        if (i != 0 && motor_relative_to_prior_motor_[i]) {
-            target_ticks = (axes_positions_in_radians_array[i] - axes_positions_in_radians_array[i-1] /* * encoder_ticks_per_radian_[i-1] */) * encoder_ticks_per_radian_[i];
-        }
         float position_in_ticks = (int) (zeroeth_radian_in_encoder_ticks_[i] + target_ticks);
 
         cmd = motor_position_map_[i] ? ODRIVE_SDK_SET_POS_1_CMD : ODRIVE_SDK_SET_POS_0_CMD;
@@ -238,10 +230,6 @@ int CppSdk::readMotorPositions(double* axes_positions_in_radians_array) {
 
         // NOTE!  THIS RELIES ON THE AXIS POSITIONS BEING READ IN ORDER; THAT axes_positions_in_radians_array[i-1] WAS READ FROM ODRIVE ALREADY
         double interpreted_radians = read_encoder_ticks / (double)encoder_ticks_per_radian_[i];
-        if (i != 0 && motor_relative_to_prior_motor_[i]) {
-          interpreted_radians = axes_positions_in_radians_array[i-1] + (read_encoder_ticks / (double)encoder_ticks_per_radian_[i]);
-        }
-
         axes_positions_in_radians_array[i] =  interpreted_radians - (zeroeth_radian_in_encoder_ticks_[i] / (double)encoder_ticks_per_radian_[i]); // TODO Check math
     }
     return ODRIVE_SDK_COMM_SUCCESS;
@@ -335,7 +323,7 @@ int CppSdk::initUSBHandlesBySNs() {
     libusb_device ** usb_device_list;
     ssize_t device_count = libusb_get_device_list(libusb_context_, &usb_device_list);
     if (device_count <= 0) {
-        std::cerr << "Could not call libusb_get_device_list: " << device_count << " - " << libusb_error_name(device_count) << std::endl;
+        std::cerr << "No USB devices detected. Count=" << device_count << std::endl;
         return device_count;
     }
 
@@ -352,12 +340,12 @@ int CppSdk::initUSBHandlesBySNs() {
             libusb_device_handle *device_handle;
             result = libusb_open(device, &device_handle);
             if (result != LIBUSB_SUCCESS) {
-                std::cerr << "Could not call libusb_open: " << result << " - " << libusb_error_name(result) << std::endl;
+                std::cerr << "ERROR. libusb_open(...) not successful: " << libusb_error_name(result) << " (" << result << "). " << std::endl;
             } else if (libusb_kernel_driver_active(device_handle, 0) && ( (result = libusb_detach_kernel_driver(device_handle, 0)) != LIBUSB_SUCCESS )) { // detach kernel driver if necessary
-                std::cerr << "Could not call libusb_detach_kernel_driver: " << result << " - " << libusb_error_name(result) << std::endl;
+                std::cerr << "ERROR. libusb_detach_kernel_driver(...) failed with error: " << libusb_error_name(result) << " (" << result << "). " << std::endl;
             }
             else if ( (result = libusb_claim_interface(device_handle, 0)) !=  LIBUSB_SUCCESS ) {
-              std::cerr << "Could not call libusb_claim_interface: " << result << " - " << libusb_error_name(result) << ": " << strerror(errno) << std::endl;
+              std::cerr << "ERROR. libusb_claim_interface(...) failed with error:  " << libusb_error_name(result) << " (" << result << "). System error: " << strerror(errno) << std::endl;
               libusb_close(device_handle);
             }
             else {

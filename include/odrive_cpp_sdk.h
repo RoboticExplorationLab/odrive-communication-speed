@@ -102,9 +102,8 @@ namespace odrive
     public:
         CppSdk(
                const std::string& odrive_serial_number,
-               const bool* motor_position_map, // false = slot 0, true = slot 1
+               const bool* motor_position_map,
                const float* encoder_ticks_per_radian,
-               const bool* motor_relative_to_prior_motor, // true if there is influence, like a belt drive
                const uint8_t num_motors
                );
         ~CppSdk();
@@ -132,8 +131,6 @@ namespace odrive
         float* encoder_ticks_per_radian_;
         int16_t* zeroeth_radian_in_encoder_ticks_;
         bool* motor_position_map_;
-        bool* motor_relative_to_prior_motor_;
-
         bool was_init_;
 
         // saved for use between creation and init

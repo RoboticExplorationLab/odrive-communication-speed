@@ -24,6 +24,7 @@ include_directories(${LIBUSB1_INCLUDEDIR})
 link_directories(${LIBUSB1_LIBRARY_DIRS})
 
 add_executable(odrive_test src/main.cpp)
+add_executable(c_sdk_test src/c_sdk_test.cpp)
 
 add_library(odrive_cpp_sdk SHARED src/odrive_cpp_sdk.cpp)
 add_library(odrive_c_sdk SHARED src/odrive_c_sdk.cpp)
@@ -33,8 +34,9 @@ install(TARGETS odrive_c_sdk DESTINATION lib)
 
 target_link_libraries(odrive_cpp_sdk ${Boost_LIBRARIES})
 target_link_libraries(odrive_cpp_sdk ${LIBUSB1_LIBRARIES})
-target_link_libraries(odrive_test odrive_cpp_sdk ${LIBUSB1_LIBRARIES})
-
 target_link_libraries(odrive_c_sdk odrive_cpp_sdk)
+target_link_libraries(odrive_test odrive_cpp_sdk ${LIBUSB1_LIBRARIES})
+target_link_libraries(c_sdk_test odrive_c_sdk)
 
+install(TARGETS c_sdk_test DESTINATION bin)
 install(TARGETS odrive_test DESTINATION bin)
