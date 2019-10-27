@@ -40,9 +40,9 @@ void runCalibration(ODrive_t odrive) {
 }
 
 
-void allReady(ODrive_t odrive) {
+int allReady(ODrive_t odrive) {
     auto typed_ptr = static_cast<odrive::CppSdk *>(odrive);
-    typed_ptr->allReady();
+    return typed_ptr->allReady();
 }
 
 

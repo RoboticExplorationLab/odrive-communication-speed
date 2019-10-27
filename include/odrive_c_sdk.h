@@ -13,7 +13,7 @@ int initODrive(ODrive_t odrive);
 void destroyODrive(ODrive_t odrive);
 int initODrive(ODrive_t odrive);
 void runCalibration(ODrive_t odrive);
-void allReady(ODrive_t odrive);
+int allReady(ODrive_t odrive);
 void setCurrentCtrlMode(ODrive_t odrive);
 int allIdle(ODrive_t odrive);
 void *controlODrive(ODrive_t

@@ -17,6 +17,14 @@ int main(int argc, const char * argv[]) {
         std::cout << '\n' << "Press any key when calibration is done...";
     } while (std::cin.get() != '\n');
     allIdle(odrive_ptr);
+    result = allReady(odrive_ptr);
+    std::cerr << "Result: " << result << std::endl;
+    setCurrentCtrlMode(odrive_ptr);
+    float pos0, vel0, pos1, vel1;
+    float cmd0 = 0.0;
+    float cmd1 = 0.0;
+    void* thread = controlODrive(odrive_ptr, cmd0, cmd1, &pos0, &vel0, &pos1, &vel1);
+    joinThread(thread);
 
     return 1;
 }
