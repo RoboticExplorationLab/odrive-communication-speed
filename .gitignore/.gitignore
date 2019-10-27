@@ -1,4 +1,4 @@
 *.DS_STORE
-.idea/
+.idea
 cmake-build-debug
 build
