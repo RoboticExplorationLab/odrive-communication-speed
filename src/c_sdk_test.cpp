@@ -3,6 +3,7 @@
 //
 
 #include "odrive_c_sdk.h"
+#include <iostream>
 
 int main(int argc, const char * argv[]) {
     const char *odrive_serial_number = "35722173822280";
@@ -10,7 +11,12 @@ int main(int argc, const char * argv[]) {
     int result = initODrive(odrive_ptr);
     std::cerr << "Result: " << result << std::endl;
 
-//    runCalibration(odrive_ptr);
+    runCalibration(odrive_ptr);
+    do
+    {
+        std::cout << '\n' << "Press any key when calibration is done...";
+    } while (std::cin.get() != '\n');
+    allIdle(odrive_ptr);
 
     return 1;
 }
