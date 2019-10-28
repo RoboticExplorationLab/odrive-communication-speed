@@ -67,26 +67,14 @@ void controlODriveHelper(ODrive_t odrive, float cmd0, float cmd1, float *pos0, f
 
 
 void *controlODrive(ODrive_t odrive, float cmd0, float cmd1, float *pos0, float *vel0, float *pos1, float *vel1) {
-    return new std::thread(controlODriveHelper, std::ref(odrive), std::ref(cmd0), std::ref(cmd1), std::ref(pos0),
-                           std::ref(vel0), std::ref(pos1), std::ref(vel1));
+    return new std::thread(controlODriveHelper, odrive, cmd0, cmd1, pos0, vel0, pos1, vel1);
 }
-
-
-//
-//void *controlODrive(ODrive_t odrive, float cmd0, float cmd1, float *pos0, float *vel0, float *pos1, float *vel1) {
-//    odrive::current_command_t current_cmd = {cmd0, cmd1};
-//    odrive::encoder_measurements_t encoder_meas;
-//
-//    // BUG: encoder_meas is passed by reference but once the function returns, encoder_meas is freed so we get a broken reference.
-//    return new std::thread(sendCurrentGetEncoder, std::ref(odrive), std::ref(current_cmd), std::ref(encoder_meas));
-//}
 
 
 void joinThread(void *thread) {
     auto typed_ptr = static_cast<std::thread *>(thread);
-    // Seg fault occurs here when the thread is joined
     typed_ptr->join();
-    delete [] typed_ptr;
+    delete typed_ptr;
 }
 
 
