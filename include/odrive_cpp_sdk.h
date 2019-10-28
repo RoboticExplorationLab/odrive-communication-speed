@@ -102,9 +102,8 @@ namespace odrive
     public:
         CppSdk(
                const std::string& odrive_serial_number,
-               const bool* motor_position_map, // false = slot 0, true = slot 1
+               const bool* motor_position_map,
                const float* encoder_ticks_per_radian,
-               const bool* motor_relative_to_prior_motor, // true if there is influence, like a belt drive
                const uint8_t num_motors
                );
         ~CppSdk();
@@ -123,7 +122,7 @@ namespace odrive
         int useTestFunction(int in);
         int checkErrors(uint8_t* error_codes_array); // assumed to match num_motors
         float getEncodersFunction(float current0);
-        int getEncodersStructFunction(const current_command_t& current_cmd, encoder_measurements_t* encoder_meas);
+        int getEncodersStructFunction(const current_command_t& current_cmd, encoder_measurements_t& encoder_meas);
 
     private:
 
@@ -132,8 +131,6 @@ namespace odrive
         float* encoder_ticks_per_radian_;
         int16_t* zeroeth_radian_in_encoder_ticks_;
         bool* motor_position_map_;
-        bool* motor_relative_to_prior_motor_;
-
         bool was_init_;
 
         // saved for use between creation and init
@@ -157,7 +154,7 @@ namespace odrive
         int odriveEndpointSetFloat(libusb_device_handle* handle, int endpoint_id, const float& value);
         int odriveEndpointSetInt(libusb_device_handle* handle, int endpoint_id, const int& value);
         int odriveEndpointSetCurrentCmd(libusb_device_handle* handle, const current_command_t& value);
-        int odriveEndpointGetEncoderMeas(libusb_device_handle* handle, encoder_measurements_t* value);
+        int odriveEndpointGetEncoderMeas(libusb_device_handle* handle, encoder_measurements_t& value);
         void serializeCommBufferInt(commBuffer& buf, const int& value);
         void serializeCommBufferUInt8(commBuffer& buf, const uint8_t& value);
         void serializeCommBufferFloat(commBuffer& buf, const float& value);

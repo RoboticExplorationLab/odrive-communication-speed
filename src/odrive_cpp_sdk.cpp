@@ -1,16 +1,12 @@
 #include "odrive_cpp_sdk.h"
-#include <cstring>
-#include <algorithm>
-#include <typeinfo>
 #include <string>
 #include <boost/endian/conversion.hpp>
 
 using namespace odrive;
 
 CppSdk::CppSdk(const std::string& odrive_serial_number,
-               const bool* motor_position_map, // false = slot 0, true = slot 1
+               const bool* motor_position_map, // 0/false = axis 0, 1/true = axis 1
                const float* encoder_ticks_per_radian,
-               const bool* motor_relative_to_prior_motor, // false = motors do not influence eachother, true = this motor poisition is subtracted from the prior one
                const uint8_t num_motors) {
     // read settings
     num_motors_ = num_motors;
@@ -22,19 +18,21 @@ CppSdk::CppSdk(const std::string& odrive_serial_number,
     for (uint8_t i = 0; i < num_motors; ++i) {
         zeroeth_radian_in_encoder_ticks_[i] = 0;
     }
+
     motor_position_map_ = new bool[num_motors]();
     for (uint8_t i = 0; i < num_motors; ++i) {
         motor_position_map_[i] = motor_position_map[i];
     }
-    motor_relative_to_prior_motor_ = new bool[num_motors]();
-    for (uint8_t i = 0; i < num_motors; ++i) {
-        motor_relative_to_prior_motor_[i] = motor_relative_to_prior_motor[i];
-    }
+
+    outbound_seq_no_ = 0;
+
+    was_init_ = false;
 
     // saved for use between creation and init
     odrive_serial_number_ = odrive_serial_number;
 
-    libusb_context_ = NULL;
+    libusb_context_ = nullptr;
+    odrive_handle_ = nullptr;
 }
 
 CppSdk::~CppSdk() {
@@ -42,29 +40,26 @@ CppSdk::~CppSdk() {
         int result = libusb_release_interface(odrive_handle_, 0);
         if (result != LIBUSB_SUCCESS) {
             std::cerr << "Error calling libusb_release_interface on odrive `" << odrive_serial_number_ << "`: " << result << " - " << libusb_error_name(result) << std::endl;
-            std::cerr << "Error calling libusb_release_interface on odrive `" << odrive_serial_number_ << "`: " << result << " - " << libusb_error_name(result) << std::endl;
         }
 
         libusb_close(odrive_handle_);
-        odrive_handle_ = NULL;
+        odrive_handle_ = nullptr;
     }
 
     delete [] encoder_ticks_per_radian_;
-    delete [] zeroeth_radian_in_encoder_ticks_;
     delete [] motor_position_map_;
-    delete [] motor_relative_to_prior_motor_;
+    delete [] zeroeth_radian_in_encoder_ticks_;
 
     // usb
     if (libusb_context_) { libusb_exit(libusb_context_); }
 }
 
 int CppSdk::init() {
-    if (libusb_context_ != NULL) {
-      std::cerr << "ODrive SDK's init function has been called twice." << std::endl;
+    if (libusb_context_ != nullptr) {
+      std::cerr << "ODrive SDK's init function has already been called." << std::endl;
       return ODRIVE_SDK_NOT_INITIALIZED;
     }
 
-    outbound_seq_no_ = 0;
     // for USB
     int result = libusb_init(&libusb_context_);
     if (result != LIBUSB_SUCCESS) {
@@ -115,7 +110,7 @@ int CppSdk::getRequestedState(int cmd, uint8_t& state){
 
     int result = odriveEndpointGetUInt8(odrive_handle_, cmd, state);
     if (result != LIBUSB_SUCCESS) {
-        std::cerr << "Couldn't run full calibration " << std::to_string(cmd) << "': `" << result << "` (see prior error message)" << std::endl;
+        std::cerr << "Couldn't get requested state " << std::to_string(cmd) << "': `" << result << "` (see prior error message)" << std::endl;
         return ODRIVE_SDK_UNEXPECTED_RESPONSE;
     }
     return ODRIVE_SDK_COMM_SUCCESS;
@@ -164,7 +159,7 @@ int CppSdk::setCurrentCtrlMode(){
 
     int cmd;
     for (uint8_t i = 0; i < num_motors_; ++i){
-        cmd = motor_position_map_[i] ? ODRIVE_SDK_CONTROL_MODE_0_CMD : ODRIVE_SDK_CONTROL_MODE_1_CMD;
+        cmd = motor_position_map_[i] ? ODRIVE_SDK_CONTROL_MODE_1_CMD : ODRIVE_SDK_CONTROL_MODE_0_CMD;
 
         int result = odriveEndpointSetUInt8(odrive_handle_, cmd, CTRL_MODE_CURRENT_CONTROL);
         if (result != LIBUSB_SUCCESS) {
@@ -183,9 +178,6 @@ int CppSdk::setGoalMotorPositions(const double* axes_positions_in_radians_array)
     int cmd;
     for (uint8_t i = 0; i < num_motors_; ++i) {
         double target_ticks = axes_positions_in_radians_array[i] * encoder_ticks_per_radian_[i];
-        if (i != 0 && motor_relative_to_prior_motor_[i]) {
-            target_ticks = (axes_positions_in_radians_array[i] - axes_positions_in_radians_array[i-1] /* * encoder_ticks_per_radian_[i-1] */) * encoder_ticks_per_radian_[i];
-        }
         float position_in_ticks = (int) (zeroeth_radian_in_encoder_ticks_[i] + target_ticks);
 
         cmd = motor_position_map_[i] ? ODRIVE_SDK_SET_POS_1_CMD : ODRIVE_SDK_SET_POS_0_CMD;
@@ -238,10 +230,6 @@ int CppSdk::readMotorPositions(double* axes_positions_in_radians_array) {
 
         // NOTE!  THIS RELIES ON THE AXIS POSITIONS BEING READ IN ORDER; THAT axes_positions_in_radians_array[i-1] WAS READ FROM ODRIVE ALREADY
         double interpreted_radians = read_encoder_ticks / (double)encoder_ticks_per_radian_[i];
-        if (i != 0 && motor_relative_to_prior_motor_[i]) {
-          interpreted_radians = axes_positions_in_radians_array[i-1] + (read_encoder_ticks / (double)encoder_ticks_per_radian_[i]);
-        }
-
         axes_positions_in_radians_array[i] =  interpreted_radians - (zeroeth_radian_in_encoder_ticks_[i] / (double)encoder_ticks_per_radian_[i]); // TODO Check math
     }
     return ODRIVE_SDK_COMM_SUCCESS;
@@ -298,7 +286,7 @@ float CppSdk::getEncodersFunction(float current0) {
     return read_encoder_ticks;
 }
 
-int CppSdk::getEncodersStructFunction(const current_command_t& current_cmd, encoder_measurements_t* encoder_meas) {
+int CppSdk::getEncodersStructFunction(const current_command_t& current_cmd, encoder_measurements_t& encoder_meas) {
     int result;
     int cmd = ODRIVE_SDK_GET_ENCODERS_ARG;
     result = odriveEndpointSetCurrentCmd(odrive_handle_, current_cmd);
@@ -335,7 +323,7 @@ int CppSdk::initUSBHandlesBySNs() {
     libusb_device ** usb_device_list;
     ssize_t device_count = libusb_get_device_list(libusb_context_, &usb_device_list);
     if (device_count <= 0) {
-        std::cerr << "Could not call libusb_get_device_list: " << device_count << " - " << libusb_error_name(device_count) << std::endl;
+        std::cerr << "No USB devices detected. Count=" << device_count << std::endl;
         return device_count;
     }
 
@@ -352,12 +340,12 @@ int CppSdk::initUSBHandlesBySNs() {
             libusb_device_handle *device_handle;
             result = libusb_open(device, &device_handle);
             if (result != LIBUSB_SUCCESS) {
-                std::cerr << "Could not call libusb_open: " << result << " - " << libusb_error_name(result) << std::endl;
+                std::cerr << "ERROR. libusb_open(...) not successful: " << libusb_error_name(result) << " (" << result << "). " << std::endl;
             } else if (libusb_kernel_driver_active(device_handle, 0) && ( (result = libusb_detach_kernel_driver(device_handle, 0)) != LIBUSB_SUCCESS )) { // detach kernel driver if necessary
-                std::cerr << "Could not call libusb_detach_kernel_driver: " << result << " - " << libusb_error_name(result) << std::endl;
+                std::cerr << "ERROR. libusb_detach_kernel_driver(...) failed with error: " << libusb_error_name(result) << " (" << result << "). " << std::endl;
             }
             else if ( (result = libusb_claim_interface(device_handle, 0)) !=  LIBUSB_SUCCESS ) {
-              std::cerr << "Could not call libusb_claim_interface: " << result << " - " << libusb_error_name(result) << ": " << strerror(errno) << std::endl;
+              std::cerr << "ERROR. libusb_claim_interface(...) failed with error:  " << libusb_error_name(result) << " (" << result << "). System error: " << strerror(errno) << std::endl;
               libusb_close(device_handle);
             }
             else {
@@ -432,10 +420,38 @@ int CppSdk::odriveEndpointRequest(libusb_device_handle* handle, int endpoint_id,
           return result;
       }
 
+      /*
+      - the payload data in receive_bytes is apparently in little endian format (see odrive protocol documentation) so
+      the payload data in receive_buffer will also be in little endian format.
+      - little endian format means the least significant bytes are first
+      - as a reminder from the ODrive documentation, receive_buffer has the format:
+    ** REQUEST **
+    Bytes 0, 1 Sequence number, MSB = 0
+        Currently the server does not care about ordering and does not filter resent messages.
+    Bytes 2, 3 Endpoint ID
+        The IDs of all endpoints can be obtained from the JSON definition. The JSON definition can be obtained by reading from endpoint 0. If (and only if) the MSB is set to 1 the client expects a response for this request.
+    Bytes 4, 5 Expected response size
+        The number of bytes that should be returned to the client. If the client doesn’t need any response data, it can set this value to 0. The operation will still be acknowledged if the MSB in EndpointID is set.
+    Bytes 6 to N-3 Payload
+        The length of the payload is determined by the total packet size. The format of the payload depends on the endpoint type. The endpoint type can be obtained from the JSON definition.
+    Bytes N-2, N-1
+        For endpoint 0: Protocol version (currently 1). A server shall ignore packets with other values.
+        For all other endpoints: The CRC16 calculated over the JSON definition. The CRC16 init value is the protocol version (currently 1). A server shall ignore packets that set this field incorrectly. See protocol.hpp for CRC details.
+
+    ** RESPONSE **
+
+    Bytes 0, 1 Sequence number, MSB = 1
+        The sequence number of the request to which this is the response.
+    Bytes 2, 3 Payload
+        The length of the payload tends to be equal to the number of expected bytes as indicated in the request. The server must not expect the client to accept more bytes than it requested.
+    */
+
+
       for (int i = 0; i < received_bytes; i++) {
           receive_buffer.push_back(receive_bytes[i]);
       }
 
+      // Duplicate argument receive_buffer
       received_payload = decodeODrivePacket(receive_buffer, received_seq_no, receive_buffer);
 
 	  /*
@@ -584,7 +600,7 @@ int CppSdk::odriveEndpointSetCurrentCmd(libusb_device_handle* handle, const curr
     return ODRIVE_SDK_COMM_SUCCESS;
 }
 
-int CppSdk::odriveEndpointGetEncoderMeas(libusb_device_handle* handle, encoder_measurements_t* value){
+int CppSdk::odriveEndpointGetEncoderMeas(libusb_device_handle* handle, encoder_measurements_t& value){
     commBuffer send_payload;
     commBuffer receive_payload;
     int received_length;
@@ -611,10 +627,10 @@ int CppSdk::odriveEndpointGetEncoderMeas(libusb_device_handle* handle, encoder_m
                                      receive_payload.begin() + 4 * sizeof(float));
         deserializeCommBufferFloat(receive_payload_4, vel_axis1);
 
-        value->encoder_pos_axis0 = pos_axis0;
-        value->encoder_vel_axis0 = vel_axis0;
-        value->encoder_pos_axis1 = pos_axis1;
-        value->encoder_vel_axis1 = vel_axis1;
+        value.encoder_pos_axis0 = pos_axis0;
+        value.encoder_vel_axis0 = vel_axis0;
+        value.encoder_pos_axis1 = pos_axis1;
+        value.encoder_vel_axis1 = vel_axis1;
         return ODRIVE_SDK_COMM_SUCCESS;
     }
     else{
@@ -662,12 +678,21 @@ void CppSdk::serializeCommBufferUInt8(commBuffer& buf, const uint8_t& value) {
 void CppSdk::deserializeCommBufferInt(commBuffer& byte_array, int& value) {
   //TODO: Check that -ve values are being converted correctly.
   value = 0;
+
+  // BUG!
+  // This for loop assumes big-endian, but byte_array is actually little-endian!
+  // The loop puts byte_array[0] at the front of the binary representation of value, and last byte of byte_array at
+  // the end of the binary representation. This would only be valid for big-endian systems.
+  // x86 and ARM processors are little-endian!
+
   for(int i = 0; i < byte_array.size(); ++i) {
      value <<= 8;
      value |= byte_array[i];
   }
 
-  //Convert the byte array to little endian. It's currently being read in as a bigendian.
+  // THIS IS NOT QUITE RIGHT! "Convert the byte array to little endian. It's currently being read in as a bigendian."
+  // The variable "value" has big-endian ordering from the way the for loop works, and so to convert it to the x86
+  // architecture, we have to convert it to little-endian.
   value = boost::endian::endian_reverse(value);
 }
 
@@ -745,6 +770,11 @@ commBuffer CppSdk::createODrivePacket(short seq_no, int endpoint_id, short respo
 }
 
 commBuffer CppSdk::decodeODrivePacket(commBuffer& buf, short& seq_no, commBuffer& received_packet) {
+    /*
+     * Decodes an ODrive packet into its sequence number and payload data
+     * Bug: received_packet is not used!
+     * The order of payload is maintained and so will be little endian
+     */
     commBuffer payload;
     readShortFromCommBuffer(buf, seq_no); // reads 2 bytes so start next for loop at 2
     seq_no &= 0x7fff;
