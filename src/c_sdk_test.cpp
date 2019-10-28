@@ -28,11 +28,13 @@ int main(int argc, const char *argv[]) {
     // joinThread(thread);
 
     // Test 1
-    controlODriveHelper(odrive_ptr, cmd0, cmd1, &pos0, &vel0, &pos1, &vel1);
+    // works i think
+    // controlODriveHelper(odrive_ptr, cmd0, cmd1, &pos0, &vel0, &pos1, &vel1);
 
     // Test 2
-    // void* thread = controlODrive2(odrive_ptr, cmd0, cmd1, &pos0, &vel0, &pos1, &vel1);
-    // joinThread(thread);
+    // seg faults!!
+    void* thread = controlODrive(odrive_ptr, cmd0, cmd1, &pos0, &vel0, &pos1, &vel1);
+    joinThread(thread);
 
     return 1;
 }
