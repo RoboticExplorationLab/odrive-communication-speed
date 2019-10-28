@@ -84,6 +84,7 @@ void *controlODrive(ODrive_t odrive, float cmd0, float cmd1, float *pos0, float 
 
 void joinThread(void *thread) {
     auto typed_ptr = static_cast<std::thread *>(thread);
+    // Seg fault occurs here when the thread is joined
     typed_ptr->join();
     delete [] typed_ptr;
 }
