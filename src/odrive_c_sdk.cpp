@@ -28,9 +28,9 @@ int initODrive(ODrive_t odrive) {
 }
 
 
-void runCalibration(ODrive_t odrive) {
+int runCalibration(ODrive_t odrive) {
     auto typed_ptr = static_cast<odrive::CppSdk *>(odrive);
-    typed_ptr->runCalibration();
+    return typed_ptr->runCalibration();
 }
 
 

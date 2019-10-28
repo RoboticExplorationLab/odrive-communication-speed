@@ -16,7 +16,12 @@ int main(int argc, const char **argv) {
     const char *odrive_serial_number = "35722173822280";
     ODrive_t odrive_ptr = ODrive(odrive_serial_number);
     int result = initODrive(odrive_ptr);
-    std::cerr << "Result: " << result << std::endl;
+    std::cout << "Result: " << result << std::endl;
+
+    if(result != 0) {
+        std::cerr << "ERROR: No ODrives available" << std::endl;
+        return 1;
+    }
 
     if(argc > 1 && argv[1][0] == 'c') {
         runCalibration(odrive_ptr);
@@ -24,9 +29,10 @@ int main(int argc, const char **argv) {
             std::cout << '\n' << "Press any key when calibration is done...";
         } while (std::cin.get() != '\n');
     }
+
     allIdle(odrive_ptr);
     result = allReady(odrive_ptr);
-    std::cerr << "Result: " << result << std::endl;
+    std::cout << "Result: " << result << std::endl;
     setCurrentCtrlMode(odrive_ptr);
     float pos0, vel0, pos1, vel1;
     float cmd0 = 0.0;

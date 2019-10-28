@@ -12,7 +12,7 @@ void *ODrive(const char *serial_number);
 int initODrive(ODrive_t odrive);
 void destroyODrive(ODrive_t odrive);
 int initODrive(ODrive_t odrive);
-void runCalibration(ODrive_t odrive);
+int runCalibration(ODrive_t odrive);
 int allReady(ODrive_t odrive);
 void setCurrentCtrlMode(ODrive_t odrive);
 int allIdle(ODrive_t odrive);
