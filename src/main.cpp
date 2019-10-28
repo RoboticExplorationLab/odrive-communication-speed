@@ -7,7 +7,7 @@
 #include <thread>
 
 void sendCurrentGetEncoder(odrive::CppSdk& odrive, const odrive::current_command_t& current, odrive::encoder_measurements_t& encoder){
-    odrive.getEncodersStructFunction(current, &encoder);
+    odrive.getEncodersStructFunction(current, encoder);
 }
 
 int main(int argc, const char * argv[]) {
@@ -98,7 +98,8 @@ int main(int argc, const char * argv[]) {
     float mid_sum = 0;
     for (int i = 0; i < NUM_LOOPS; i++) {
         std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
-        std::thread test(sendCurrentGetEncoder, std::ref(odrive_test), std::ref(current_cmd_test), std::ref(encoder_meas_test));
+        std::thread test(sendCurrentGetEncoder, std::ref(odrive_test), std::ref(current_cmd_test), std::ref(
+                encoder_meas_test));
 //        std::thread bl(sendCurrentGetEncoder, std::ref(odrive_bl), std::ref(current_cmd_b), std::ref(encoder_meas_bl));
 //        std::thread br(sendCurrentGetEncoder, std::ref(odrive_br), std::ref(current_cmd_b), std::ref(encoder_meas_br));
         std::chrono::steady_clock::time_point mid = std::chrono::steady_clock::now();

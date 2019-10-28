@@ -286,7 +286,7 @@ float CppSdk::getEncodersFunction(float current0) {
     return read_encoder_ticks;
 }
 
-int CppSdk::getEncodersStructFunction(const current_command_t& current_cmd, encoder_measurements_t* encoder_meas) {
+int CppSdk::getEncodersStructFunction(const current_command_t& current_cmd, encoder_measurements_t& encoder_meas) {
     int result;
     int cmd = ODRIVE_SDK_GET_ENCODERS_ARG;
     result = odriveEndpointSetCurrentCmd(odrive_handle_, current_cmd);
@@ -600,7 +600,7 @@ int CppSdk::odriveEndpointSetCurrentCmd(libusb_device_handle* handle, const curr
     return ODRIVE_SDK_COMM_SUCCESS;
 }
 
-int CppSdk::odriveEndpointGetEncoderMeas(libusb_device_handle* handle, encoder_measurements_t* value){
+int CppSdk::odriveEndpointGetEncoderMeas(libusb_device_handle* handle, encoder_measurements_t& value){
     commBuffer send_payload;
     commBuffer receive_payload;
     int received_length;
@@ -627,10 +627,10 @@ int CppSdk::odriveEndpointGetEncoderMeas(libusb_device_handle* handle, encoder_m
                                      receive_payload.begin() + 4 * sizeof(float));
         deserializeCommBufferFloat(receive_payload_4, vel_axis1);
 
-        value->encoder_pos_axis0 = pos_axis0;
-        value->encoder_vel_axis0 = vel_axis0;
-        value->encoder_pos_axis1 = pos_axis1;
-        value->encoder_vel_axis1 = vel_axis1;
+        value.encoder_pos_axis0 = pos_axis0;
+        value.encoder_vel_axis0 = vel_axis0;
+        value.encoder_pos_axis1 = pos_axis1;
+        value.encoder_vel_axis1 = vel_axis1;
         return ODRIVE_SDK_COMM_SUCCESS;
     }
     else{

@@ -2,12 +2,6 @@
 #include "odrive_cpp_sdk.h"
 #include <thread>
 
-void sendCurrentGetEncoder(ODrive_t odrive, const odrive::current_command_t &current,
-                           odrive::encoder_measurements_t &encoder) {
-    auto typed_ptr = static_cast<odrive::CppSdk *>(odrive);
-    typed_ptr->getEncodersStructFunction(current, &encoder);
-}
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -58,16 +52,40 @@ int allIdle(ODrive_t odrive) {
 }
 
 
-void *controlODrive(ODrive_t odrive, float cmd0, float cmd1, float *pos0, float *vel0, float *pos1, float *vel1) {
+void controlODriveHelper(ODrive_t odrive, float cmd0, float cmd1, float *pos0, float *vel0, float *pos1, float *vel1) {
     odrive::current_command_t current_cmd = {cmd0, cmd1};
     odrive::encoder_measurements_t encoder_meas;
-    return new std::thread(sendCurrentGetEncoder, std::ref(odrive), std::ref(current_cmd), std::ref(encoder_meas));
+
+    auto typed_ptr = static_cast<odrive::CppSdk *>(odrive);
+    typed_ptr->getEncodersStructFunction(current_cmd, encoder_meas);
+
+    *pos0 = encoder_meas.encoder_pos_axis0;
+    *vel0 = encoder_meas.encoder_vel_axis0;
+    *pos1 = encoder_meas.encoder_pos_axis1;
+    *vel1 = encoder_meas.encoder_vel_axis1;
 }
+
+
+void *controlODrive(ODrive_t odrive, float cmd0, float cmd1, float *pos0, float *vel0, float *pos1, float *vel1) {
+    return new std::thread(controlODriveHelper, std::ref(odrive), std::ref(cmd0), std::ref(cmd1), std::ref(pos0),
+                           std::ref(vel0), std::ref(pos1), std::ref(vel1));
+}
+
+
+//
+//void *controlODrive(ODrive_t odrive, float cmd0, float cmd1, float *pos0, float *vel0, float *pos1, float *vel1) {
+//    odrive::current_command_t current_cmd = {cmd0, cmd1};
+//    odrive::encoder_measurements_t encoder_meas;
+//
+//    // BUG: encoder_meas is passed by reference but once the function returns, encoder_meas is freed so we get a broken reference.
+//    return new std::thread(sendCurrentGetEncoder, std::ref(odrive), std::ref(current_cmd), std::ref(encoder_meas));
+//}
 
 
 void joinThread(void *thread) {
     auto typed_ptr = static_cast<std::thread *>(thread);
     typed_ptr->join();
+    delete [] typed_ptr;
 }
 
 

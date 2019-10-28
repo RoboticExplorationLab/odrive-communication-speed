@@ -122,7 +122,7 @@ namespace odrive
         int useTestFunction(int in);
         int checkErrors(uint8_t* error_codes_array); // assumed to match num_motors
         float getEncodersFunction(float current0);
-        int getEncodersStructFunction(const current_command_t& current_cmd, encoder_measurements_t* encoder_meas);
+        int getEncodersStructFunction(const current_command_t& current_cmd, encoder_measurements_t& encoder_meas);
 
     private:
 
@@ -154,7 +154,7 @@ namespace odrive
         int odriveEndpointSetFloat(libusb_device_handle* handle, int endpoint_id, const float& value);
         int odriveEndpointSetInt(libusb_device_handle* handle, int endpoint_id, const int& value);
         int odriveEndpointSetCurrentCmd(libusb_device_handle* handle, const current_command_t& value);
-        int odriveEndpointGetEncoderMeas(libusb_device_handle* handle, encoder_measurements_t* value);
+        int odriveEndpointGetEncoderMeas(libusb_device_handle* handle, encoder_measurements_t& value);
         void serializeCommBufferInt(commBuffer& buf, const int& value);
         void serializeCommBufferUInt8(commBuffer& buf, const uint8_t& value);
         void serializeCommBufferFloat(commBuffer& buf, const float& value);

@@ -6,7 +6,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-    
+
 typedef void *ODrive_t;
 void *ODrive(const char *serial_number);
 int initODrive(ODrive_t odrive);
@@ -16,13 +16,8 @@ void runCalibration(ODrive_t odrive);
 int allReady(ODrive_t odrive);
 void setCurrentCtrlMode(ODrive_t odrive);
 int allIdle(ODrive_t odrive);
-void *controlODrive(ODrive_t
-                    odrive, float cmd0,
-                    float cmd1,
-                    float *pos0,
-                    float *vel0,
-                    float *pos1,
-                    float *vel1);
+void controlODriveHelper(ODrive_t odrive, float cmd0, float cmd1, float *pos0, float *vel0, float *pos1, float *vel1);
+void *controlODrive(ODrive_t odrive, float cmd0, float cmd1, float *pos0, float *vel0, float *pos1, float *vel1);
 void joinThread(void *thread);
 
 #ifdef __cplusplus
