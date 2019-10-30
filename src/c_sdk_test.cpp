@@ -13,6 +13,8 @@ int main(int argc, const char **argv) {
      * do the calibration procedure before running the test
      */
 
+    ThreadPool_t tp_ptr = ThreadPool();
+
     const char *odrive_serial_number = "35722173822280";
     ODrive_t odrive_ptr = ODrive(odrive_serial_number);
     int result = initODrive(odrive_ptr);
@@ -38,13 +40,15 @@ int main(int argc, const char **argv) {
     float cmd0 = 0.0;
     float cmd1 = 0.0;
 
+    addODriveToThreadPool(tp_ptr, odrive_ptr);
+
     // Test 1
     controlODriveHelper(odrive_ptr, cmd0, cmd1, &pos0, &vel0, &pos1, &vel1);
     std::cout << pos0 << std::endl;
     
     // Test 2    
-    void* thread = controlODrive(odrive_ptr, cmd0, cmd1, &pos0, &vel0, &pos1, &vel1);
-    joinThread(thread);
+    controlODrive(tp_ptr, odrive_ptr, cmd0, cmd1, &pos0, &vel0, &pos1, &vel1);
+    wait(tp_ptr);
 
     return 1;
 }
