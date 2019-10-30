@@ -40,9 +40,9 @@ int allReady(ODrive_t odrive) {
 }
 
 
-void setCurrentCtrlMode(ODrive_t odrive) {
+int setCurrentCtrlMode(ODrive_t odrive) {
     auto typed_ptr = static_cast<odrive::CppSdk *>(odrive);
-    typed_ptr->setCurrentCtrlMode();
+    return typed_ptr->setCurrentCtrlMode();
 }
 
 
