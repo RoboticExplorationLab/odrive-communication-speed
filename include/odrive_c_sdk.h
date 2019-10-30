@@ -8,7 +8,11 @@ extern "C" {
 #endif
 
 typedef void *ODrive_t;
+typedef void *ThreadPool_t;
 void *ODrive(const char *serial_number);
+void *ThreadPool();
+void addODriveToThreadPool(ThreadPool_t tp, ODrive_t odrive);
+void destroyThreadPool(ThreadPool_t tp);
 int initODrive(ODrive_t odrive);
 void destroyODrive(ODrive_t odrive);
 int initODrive(ODrive_t odrive);
@@ -17,8 +21,8 @@ int allReady(ODrive_t odrive);
 void setCurrentCtrlMode(ODrive_t odrive);
 int allIdle(ODrive_t odrive);
 void controlODriveHelper(ODrive_t odrive, float cmd0, float cmd1, float *pos0, float *vel0, float *pos1, float *vel1);
-void *controlODrive(ODrive_t odrive, float cmd0, float cmd1, float *pos0, float *vel0, float *pos1, float *vel1);
-void joinThread(void *thread);
+void controlODrive(ODrive_t odrive, float cmd0, float cmd1, float *pos0, float *vel0, float *pos1, float *vel1);
+void wait(ThreadPool_t tp);
 
 #ifdef __cplusplus
 }

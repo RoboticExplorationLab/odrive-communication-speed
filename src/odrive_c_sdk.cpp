@@ -1,6 +1,6 @@
 #include "odrive_c_sdk.h"
 #include "odrive_cpp_sdk.h"
-#include <thread>
+#include "odrive_threadpool.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -14,6 +14,22 @@ ODrive_t ODrive(const char *serial_number) {
 
     return new odrive::CppSdk(serial_num, motor_position_map, odrive_encoder_ticks_per_radian_per_motor,
                               num_motors);
+}
+
+
+ThreadPool_t ThreadPool() {
+    return new ODriveThreadPool::ODriveThreadPool();
+}
+
+
+void addODriveToThreadPool(ThreadPool_t tp, ODrive_t odrive) {
+    auto typed_ptr = static_cast<ODriveThreadPool::ODriveThreadPool *>(tp);
+    typed_ptr->addOdriveThread(odrive);
+}
+
+
+void destroyThreadPool(ThreadPool_t tp) {
+    delete[] static_cast<ODriveThreadPool::ODriveThreadPool *>(tp);
 }
 
 
@@ -66,15 +82,15 @@ void controlODriveHelper(ODrive_t odrive, float cmd0, float cmd1, float *pos0, f
 }
 
 
-void *controlODrive(ODrive_t odrive, float cmd0, float cmd1, float *pos0, float *vel0, float *pos1, float *vel1) {
-    return new std::thread(controlODriveHelper, odrive, cmd0, cmd1, pos0, vel0, pos1, vel1);
+void controlODrive(ThreadPool_t tp, ODrive_t odrive, float cmd0, float cmd1, float *pos0, float *vel0, float *pos1, float *vel1) {
+    auto typed_ptr = static_cast<ODriveThreadPool::ODriveThreadPool *>(tp);
+    typed_ptr->schedule(odrive, [=]{controlODriveHelper(odrive, cmd0, cmd1, pos0, vel0, pos1, vel1); });
 }
 
 
-void joinThread(void *thread) {
-    auto typed_ptr = static_cast<std::thread *>(thread);
-    typed_ptr->join();
-    delete typed_ptr;
+void wait(ThreadPool_t tp) {
+    auto typed_ptr = static_cast<ODriveThreadPool::ODriveThreadPool *>(tp);
+    typed_ptr->wait();
 }
 
 
