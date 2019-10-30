@@ -39,3 +39,30 @@ void ODriveThreadPool::odriveThread(ODrive_t odrive)
         idleCond.notify_one();
     }
 }
+
+void ODriveThreadPool::schedule(ODrive_t odrive, const std::function<void(void)> &thunk)
+{
+    lock_guard<mutex> lgr(idleLock);
+    threads[odrive].idle = false;
+    idleThreads--;
+    lock_guard<mutex> lgr(threads[odrive].jobLock);
+    threads[odrive].job = thunk;
+    threads[odrive].jobCond.notify_one();
+}
+
+void ODriveThreadPool::wait()
+{
+    idleLock.lock();
+    idleCond.wait(idleLock, [this]{ return idleThreads == threads.size(); });
+    idleLock.unlock();
+}
+
+ODriveThreadPool::~ODriveThreadPool()
+{
+    wait();
+    running = false;
+    for (auto const& t : threads) {
+        t.second.jobCond.notify_one();
+        t.second.odrive_thread.join();
+    }
+}
