@@ -70,7 +70,7 @@ int main(int argc, const char **argv) {
     float total_avg = total_sum / NUM_LOOPS;
     float mid_avg = mid_sum / NUM_LOOPS;
     std::cout << "Average time for command = " << total_avg << std::endl;
-    std::cout << "Average time waiting for response = " << mid_avg << std::endl;
+    std::cout << "Average time sending commands = " << mid_avg << std::endl;
     
     return 1;
 }
