@@ -42,15 +42,27 @@ int main(int argc, const char **argv) {
 
     addODriveToThreadPool(tp_ptr, odrive_ptr);
 
-    // Test 1
-    controlODriveHelper(odrive_ptr, cmd0, cmd1, &pos0, &vel0, &pos1, &vel1);
-    std::cout << pos0 << std::endl;
-    
-    // Test 2
-    float pos0_2;    
-    controlODrive(tp_ptr, odrive_ptr, cmd0, cmd1, &pos0_2, &vel0, &pos1, &vel1);
-    waitForThreads(tp_ptr);
-    std::cout << pos0_2 << std::endl;
+    std::cout << "Starting timing tests..." << std::endl;
+    int NUM_LOOPS = 10000;
 
+    float total_sum = 0;
+    float mid_sum = 0;
+    for (int i = 0; i < NUM_LOOPS; i++) {
+        std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
+        controlODrive(tp_ptr, odrive_ptr, cmd0, cmd1, &pos0, &vel0, &pos1, &vel1);
+
+        std::chrono::steady_clock::time_point mid = std::chrono::steady_clock::now();
+
+        waitForThreads(tp_ptr);
+
+        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+        total_sum += std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+        mid_sum += std::chrono::duration_cast<std::chrono::microseconds>(mid - start).count();
+    }
+    float total_avg = total_sum / NUM_LOOPS;
+    float mid_avg = mid_sum / NUM_LOOPS;
+    std::cout << "Average time for command = " << total_avg << std::endl;
+    std::cout << "Average time waiting for response = " << mid_avg << std::endl;
+    
     return 1;
 }
