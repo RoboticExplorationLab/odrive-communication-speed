@@ -48,7 +48,7 @@ int main(int argc, const char **argv) {
     
     // Test 2    
     controlODrive(tp_ptr, odrive_ptr, cmd0, cmd1, &pos0, &vel0, &pos1, &vel1);
-    wait(tp_ptr);
+    waitForThreads(tp_ptr);
 
     return 1;
 }

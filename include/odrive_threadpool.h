@@ -29,7 +29,7 @@ private:
     };
 
     bool running;
-    std::map<ODrive_t, thread_t> threads;
+    std::map<ODrive_t, thread_t*> threads;
     size_t idleThreads;                         // number of currently idle threads
     std::condition_variable_any idleCond;       // condition variable for idleThreads
     std::mutex idleLock;                        // mutex for guarding idleThreads

@@ -22,7 +22,7 @@ void setCurrentCtrlMode(ODrive_t odrive);
 int allIdle(ODrive_t odrive);
 void controlODriveHelper(ODrive_t odrive, float cmd0, float cmd1, float *pos0, float *vel0, float *pos1, float *vel1);
 void controlODrive(ThreadPool_t tp, ODrive_t odrive, float cmd0, float cmd1, float *pos0, float *vel0, float *pos1, float *vel1);
-void wait(ThreadPool_t tp);
+void waitForThreads(ThreadPool_t tp);
 
 #ifdef __cplusplus
 }

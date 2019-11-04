@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.13)
 project(odrive_test)
 
 add_compile_options(-std=c++11)
@@ -27,7 +27,7 @@ add_executable(odrive_test src/main.cpp)
 add_executable(c_sdk_test src/c_sdk_test.cpp)
 
 add_library(odrive_cpp_sdk SHARED src/odrive_cpp_sdk.cpp)
-add_library(odrive_c_sdk SHARED src/odrive_c_sdk.cpp)
+add_library(odrive_c_sdk SHARED src/odrive_c_sdk.cpp src/odrive_threadpool.cpp)
 
 install(TARGETS odrive_cpp_sdk DESTINATION lib)
 install(TARGETS odrive_c_sdk DESTINATION lib)

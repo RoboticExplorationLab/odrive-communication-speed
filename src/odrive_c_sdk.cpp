@@ -18,18 +18,18 @@ ODrive_t ODrive(const char *serial_number) {
 
 
 ThreadPool_t ThreadPool() {
-    return new ODriveThreadPool::ODriveThreadPool();
+    return new ODriveThreadPool();
 }
 
 
 void addODriveToThreadPool(ThreadPool_t tp, ODrive_t odrive) {
-    auto typed_ptr = static_cast<ODriveThreadPool::ODriveThreadPool *>(tp);
+    auto typed_ptr = static_cast<ODriveThreadPool *>(tp);
     typed_ptr->addOdriveThread(odrive);
 }
 
 
 void destroyThreadPool(ThreadPool_t tp) {
-    delete[] static_cast<ODriveThreadPool::ODriveThreadPool *>(tp);
+    delete[] static_cast<ODriveThreadPool *>(tp);
 }
 
 
@@ -83,13 +83,13 @@ void controlODriveHelper(ODrive_t odrive, float cmd0, float cmd1, float *pos0, f
 
 
 void controlODrive(ThreadPool_t tp, ODrive_t odrive, float cmd0, float cmd1, float *pos0, float *vel0, float *pos1, float *vel1) {
-    auto typed_ptr = static_cast<ODriveThreadPool::ODriveThreadPool *>(tp);
+    auto typed_ptr = static_cast<ODriveThreadPool *>(tp);
     typed_ptr->schedule(odrive, [=]{controlODriveHelper(odrive, cmd0, cmd1, pos0, vel0, pos1, vel1); });
 }
 
 
-void wait(ThreadPool_t tp) {
-    auto typed_ptr = static_cast<ODriveThreadPool::ODriveThreadPool *>(tp);
+void waitForThreads(ThreadPool_t tp) {
+    auto typed_ptr = static_cast<ODriveThreadPool *>(tp);
     typed_ptr->wait();
 }
 
