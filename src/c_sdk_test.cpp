@@ -46,9 +46,11 @@ int main(int argc, const char **argv) {
     controlODriveHelper(odrive_ptr, cmd0, cmd1, &pos0, &vel0, &pos1, &vel1);
     std::cout << pos0 << std::endl;
     
-    // Test 2    
-    controlODrive(tp_ptr, odrive_ptr, cmd0, cmd1, &pos0, &vel0, &pos1, &vel1);
+    // Test 2
+    float pos0_2;    
+    controlODrive(tp_ptr, odrive_ptr, cmd0, cmd1, &pos0_2, &vel0, &pos1, &vel1);
     waitForThreads(tp_ptr);
+    std::cout << pos0_2 << std::endl;
 
     return 1;
 }
