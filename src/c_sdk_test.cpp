@@ -4,6 +4,7 @@
 
 #include "odrive_c_sdk.h"
 #include <iostream>
+#include <chrono>
 
 int main(int argc, const char **argv) {
     /* Tests that the c wrapper for the odrive sdk works.
