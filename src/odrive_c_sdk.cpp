@@ -56,9 +56,9 @@ int allReady(ODrive_t odrive) {
 }
 
 
-void setCurrentCtrlMode(ODrive_t odrive) {
+int setCurrentCtrlMode(ODrive_t odrive) {
     auto typed_ptr = static_cast<odrive::CppSdk *>(odrive);
-    typed_ptr->setCurrentCtrlMode();
+    return typed_ptr->setCurrentCtrlMode();
 }
 
 
@@ -67,6 +67,11 @@ int allIdle(ODrive_t odrive) {
     return typed_ptr->allIdle();
 }
 
+int setCurrents(ODrive_t odrive, float cmd0, float cmd1) {
+    auto typed_ptr = static_cast<odrive::CppSdk *>(odrive);
+    const float currents[2] = {cmd0, cmd1};
+    return typed_ptr->setCurrentSetpoint(currents);
+}
 
 void controlODriveHelper(ODrive_t odrive, float cmd0, float cmd1, float *pos0, float *vel0, float *pos1, float *vel1) {
     odrive::current_command_t current_cmd = {cmd0, cmd1};
