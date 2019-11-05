@@ -5,6 +5,7 @@
 #include "odrive_c_sdk.h"
 #include <iostream>
 #include <chrono>
+#include <unistd.h>
 
 int main(int argc, const char **argv) {
     /* Tests that the c wrapper for the odrive sdk works.
@@ -19,12 +20,22 @@ int main(int argc, const char **argv) {
     const char *odrv0_serial_number = "35722173822280";
     const char *odrv1_serial_number = "60894957285687";
     ODrive_t odrv0 = ODrive(odrv0_serial_number);
+    std::cout << "Connected odrive0" << std::endl;
     ODrive_t odrv1 = ODrive(odrv1_serial_number);
-    int result = initODrive(odrv0) & initODrive(odrv1);
-    std::cout << "Result: " << result << std::endl;
+    std::cout << "Connected odrive1" << std::endl;
+    
+    usleep(5000000);
+
+    int result = initODrive(odrv0);
+    std::cout << "Result from initializing odrv0: " << result << std::endl;    
+    
+    usleep(5000000);
+
+    result = initODrive(odrv1);
+    std::cout << "Result from initializing odrv1: " << result << std::endl;
 
     if(result != 0) {
-        std::cerr << "ERROR: No ODrives available" << std::endl;
+        std::cerr << "ERROR: Could not initialize ODrives" << std::endl;
         return 1;
     }
 
