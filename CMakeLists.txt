@@ -25,6 +25,7 @@ link_directories(${LIBUSB1_LIBRARY_DIRS})
 
 add_executable(odrive_test src/main.cpp)
 add_executable(c_sdk_test src/c_sdk_test.cpp)
+add_executable(c_sdk_test_single_odrive src/c_sdk_test_single_odrive.cpp)
 
 add_library(odrive_cpp_sdk SHARED src/odrive_cpp_sdk.cpp)
 add_library(odrive_c_sdk SHARED src/odrive_c_sdk.cpp src/odrive_threadpool.cpp)
@@ -37,6 +38,8 @@ target_link_libraries(odrive_cpp_sdk ${LIBUSB1_LIBRARIES})
 target_link_libraries(odrive_c_sdk odrive_cpp_sdk)
 target_link_libraries(odrive_test odrive_cpp_sdk ${LIBUSB1_LIBRARIES})
 target_link_libraries(c_sdk_test odrive_c_sdk)
+target_link_libraries(c_sdk_test_single_odrive odrive_c_sdk)
 
 install(TARGETS c_sdk_test DESTINATION bin)
+install(TARGETS c_sdk_test_single_odrive DESTINATION bin)
 install(TARGETS odrive_test DESTINATION bin)
