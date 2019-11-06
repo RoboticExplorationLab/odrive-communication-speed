@@ -24,7 +24,7 @@ include_directories(${LIBUSB1_INCLUDEDIR})
 link_directories(${LIBUSB1_LIBRARY_DIRS})
 
 add_executable(odrive_test src/main.cpp)
-add_executable(c_sdk_test src/c_sdk_test.cpp)\
+add_executable(c_sdk_test src/c_sdk_test.cpp)
 add_executable(pid_test src/pid_test.cpp)
 add_executable(c_sdk_test_single_odrive src/c_sdk_test_single_odrive.cpp)
 
