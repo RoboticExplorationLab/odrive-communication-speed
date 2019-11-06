@@ -47,8 +47,8 @@ int main(int argc, const char **argv) {
 
     if(argc > 1 && argv[1][0] == 'c') {
         runCalibration(odrv0);
-        runCalibration(odrv1);
-        runCalibration(odrv2);
+        //runCalibration(odrv1);
+        //runCalibration(odrv2);
         do {
             std::cout << '\n' << "Press any key when calibration is done...";
         } while (std::cin.get() != '\n');
