@@ -79,9 +79,9 @@ int main(int argc, const char **argv) {
         controlODrive(tp_ptr, odrv0, current, cmd1, &pos0_0, &vel0_0, &pos1_0, &vel1_0);
         waitForThreads(tp_ptr);
         //std::cout << pos0_0 << ", " << vel0_0 << std::endl;
-        current = -0.001*pos0_0 - 0.0001*vel0_0;
-        if (current > 3) current = 3.0;
-        if (current < -3) current = -3.0;
+        current = -0.002*pos0_0 - 0.0001*vel0_0;
+        if (current > 5) current = 5.0;
+        if (current < -5) current = -5.0;
     }
 
     return 1;
