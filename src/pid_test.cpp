@@ -76,13 +76,25 @@ int main(int argc, const char **argv) {
 
     float current = 0.0;
     while(true) {
-        controlODrive(tp_ptr, odrv0, current, cmd1, &pos0_0, &vel0_0, &pos1_0, &vel1_0);
-        controlODrive(tp_ptr, odrv1, 0.0, 0.0, &pos0_1, &vel0_1, &pos1_1, &vel1_1);
-        waitForThreads(tp_ptr);
-        //std::cout << pos0_0 << ", " << vel0_0 << std::endl;
-        current = 0.002*(pos0_1 - pos0_0) - 0.0001*vel0_0;
-        if (current > 5) current = 5.0;
-        if (current < -5) current = -5.0;
+
+        int NUM_LOOPS = 10000;
+
+        std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
+        for (int i = 0; i < NUM_LOOPS; i++) {
+
+            controlODrive(tp_ptr, odrv0, current, cmd1, &pos0_0, &vel0_0, &pos1_0, &vel1_0);
+            controlODrive(tp_ptr, odrv1, 0.0, 0.0, &pos0_1, &vel0_1, &pos1_1, &vel1_1);
+            waitForThreads(tp_ptr);
+            //std::cout << pos0_0 << ", " << vel0_0 << std::endl;
+            current = 0.004*(pos0_1 - pos0_0) - 0.0001*vel0_0;
+            if (current > 5) current = 5.0;
+            if (current < -5) current = -5.0;
+        }
+        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+        float total_sum = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+        float total_avg = total_sum / NUM_LOOPS;
+        std::cout << "Average time for control loop = " << total_avg << std::endl;
+
     }
 
     return 1;
