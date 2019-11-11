@@ -18,7 +18,7 @@ int main(int argc, const char **argv) {
 
     ThreadPool_t tp_ptr = ThreadPool();
 
-    std::vector<char*> serial_numbers = {};
+    std::vector<const char*> serial_numbers = {"35619029856331", "35799416713291", "59752448340023", "35726434842440", "35799416778827", "35795121942603"};
     std::vector<ODrive_t> odrives;
 
     for (size_t i = 0; i < serial_numbers.size(); i++) {
@@ -108,6 +108,9 @@ int main(int argc, const char **argv) {
             for (size_t i = 0; i < odrives.size(); i++) {
                 ODrive_t odrv = odrives[i];
                 meas_t meas = measurements[i];
+                current = 0.004*(0 - meas.pos0) + 0.0001 * (0 - meas.vel0);
+                if (current > 2) current = 2.0;
+                if (current < -2) current = -2.0;
                 controlODrive(tp_ptr, odrv, current, cmd1, &meas.pos0, &meas.vel0, &meas.pos1, &meas.vel1);
             }
             // controlODrive(tp_ptr, odrv0, current, cmd1, &pos0_0, &vel0_0, &pos1_0, &vel1_0);
