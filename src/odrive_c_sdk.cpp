@@ -29,12 +29,12 @@ void addODriveToThreadPool(ThreadPool_t tp, ODrive_t odrive) {
 
 
 void destroyThreadPool(ThreadPool_t tp) {
-    delete[] static_cast<ODriveThreadPool *>(tp);
+    delete static_cast<ODriveThreadPool *>(tp);
 }
 
 
 void destroyODrive(ODrive_t odrive) {
-    delete[] static_cast<odrive::CppSdk *>(odrive);
+    delete static_cast<odrive::CppSdk *>(odrive);
 }
 
 
