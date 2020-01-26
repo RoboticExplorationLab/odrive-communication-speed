@@ -170,6 +170,24 @@ int CppSdk::setCurrentCtrlMode(){
     return ODRIVE_SDK_COMM_SUCCESS;
 }
 
+int CppSdk::setWatchdogTimeout(float timeout){
+    if (! was_init_) {
+        return ODRIVE_SDK_NOT_INITIALIZED;
+    }
+
+    int cmd;
+    for (uint8_t i = 0; i < num_motors_; ++i){
+        cmd = motor_position_map_[i] ? ODRIVE_SDK_WATCHDOG_TIMEOUT_1_CMD : ODRIVE_SDK_WATCHDOG_TIMEOUT_0_CMD;
+
+        int result = odriveEndpointSetFloat(odrive_handle_, cmd, timeout);
+        if (result != LIBUSB_SUCCESS) {
+            std::cerr << "Couldn't set to current control " << std::to_string(cmd) << "': `" << result << "` (see prior error message)" << std::endl;
+            return ODRIVE_SDK_UNEXPECTED_RESPONSE;
+        }
+    }
+    return ODRIVE_SDK_COMM_SUCCESS;
+}
+
 int CppSdk::setGoalMotorPositions(const double* axes_positions_in_radians_array) {
     if (! was_init_) {
         return ODRIVE_SDK_NOT_INITIALIZED;

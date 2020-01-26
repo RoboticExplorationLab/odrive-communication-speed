@@ -54,6 +54,9 @@
 #define ODRIVE_SDK_CONTROL_MODE_0_CMD 131
 #define ODRIVE_SDK_CONTROL_MODE_1_CMD 274
 
+#define ODRIVE_SDK_WATCHDOG_TIMEOUT_0_CMD 65
+#define ODRIVE_SDK_WATCHDOG_TIMEOUT_1_CMD 223
+
 #define ODRIVE_SDK_GET_ENCODERS_FUNC 349
 #define ODRIVE_SDK_GET_ENCODERS_ARG 350
 #define ODRIVE_SDK_GET_ENCODERS_OUT 351
@@ -114,6 +117,7 @@ namespace odrive
         int allReady();
         int allIdle();
         int setCurrentCtrlMode();
+        int setWatchdogTimeout(float timeout);
         void setZeroethRadianInEncoderTicks(const int16_t* zeroeth_radian_in_encoder_ticks); // assumed to match num_motors
         int setGoalMotorPositions(const double* axes_positions_in_radians_array); // assumed to match num_motors
         int setCurrentSetpoint(const float* axes_current_in_A_array);
