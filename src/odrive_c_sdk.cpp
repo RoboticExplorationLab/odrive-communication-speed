@@ -93,6 +93,12 @@ void controlODrive(ThreadPool_t tp, ODrive_t odrive, float cmd0, float cmd1, flo
 }
 
 
+int setWatchdogTimeout(ODrive_t odrive, float timeout) {
+    auto typed_ptr = static_cast<odrive::CppSdk *>(odrive);
+    return typed_ptr->setWatchdogTimeout(timeout);
+}
+
+
 void waitForThreads(ThreadPool_t tp) {
     auto typed_ptr = static_cast<ODriveThreadPool *>(tp);
     typed_ptr->wait();
