@@ -51,6 +51,7 @@ int main(int argc, const char **argv) {
 
     for (ODrive_t odrv: odrives) {
         allIdle(odrv);
+        allReady(odrv);
         setCurrentCtrlMode(odrv);
         addODriveToThreadPool(tp_ptr, odrv);
     }
@@ -65,14 +66,15 @@ int main(int argc, const char **argv) {
         float vel1;
     };
 
-    std::vector<meas_t> measurements(odrives.size(), {0.0, 0.0, 0.0, 0.0});
+    // std::vector<meas_t> measurements(odrives.size(), {0.0, 0.0, 0.0, 0.0});
+    meas_t meas = {0.0, 0.0, 0.0, 0.0};
 
     signal(SIGINT, intHandle);
 
     std::cout << "Starting pid test..." << std::endl;
 
     for (ODrive_t odrv: odrives) {
-        setWatchdogTimeout(odrv, 0.01);
+        setWatchdogTimeout(odrv, 0.02);
     }
 
     float current = 0.0;
@@ -82,16 +84,26 @@ int main(int argc, const char **argv) {
 
         std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
         for (size_t l = 0; l < NUM_LOOPS; l++) {
+            std::chrono::steady_clock::time_point loop_start = std::chrono::steady_clock::now();
+
+            if(!runLoop) break;
             for (size_t i = 0; i < odrives.size(); i++) {
                 ODrive_t odrv = odrives[i];
-                meas_t meas = measurements[i];
+                // meas_t meas = measurements[i];
                 current = 0.004*(0 - meas.pos0) + 0.0001 * (0 - meas.vel0);
                 if (current > 2) current = 2.0;
                 if (current < -2) current = -2.0;
+                // std::cout << current << " ";
                 controlODrive(tp_ptr, odrv, current, cmd1, &meas.pos0, &meas.vel0, &meas.pos1, &meas.vel1);
             }
 
             waitForThreads(tp_ptr);
+            // std::cout << meas.pos0 << std::endl;
+
+            std::chrono::steady_clock::time_point loop_end = std::chrono::steady_clock::now();
+            if (std::chrono::duration_cast<std::chrono::microseconds>(loop_end - loop_start).count() > 2000) {
+                std::cout << std::chrono::duration_cast<std::chrono::microseconds>(loop_end - loop_start).count() << std::endl;
+            }
         }
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
         float total_sum = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();

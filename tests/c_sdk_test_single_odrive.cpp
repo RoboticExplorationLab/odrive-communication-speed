@@ -60,6 +60,7 @@ int main(int argc, const char **argv) {
         std::chrono::steady_clock::time_point mid = std::chrono::steady_clock::now();
 
         waitForThreads(tp_ptr);
+        std::cout << pos0_0 << std::endl;
 
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
         total_sum += std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
